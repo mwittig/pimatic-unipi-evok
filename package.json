@@ -1,0 +1,38 @@
+{
+  "name": "pimatic-unipi-evok",
+  "description": "Pimatic Plugin for the UniPi board based on Evok - http://www.unipi.technology",
+  "version": "0.0.1",
+  "author": {
+    "name": "Marcus Wittig",
+    "url": "https://github.com/mwittig/pimatic-unipi-evok"
+  },
+  "main": "unipi-evok",
+  "configSchema": "unipi-evok-config-schema.coffee",
+  "files": [
+    "unipi-evok.coffee",
+    "README.md",
+    "unipi-evok-config-schema.coffee",
+    "device-config-schema.coffee",
+    "LICENSE"
+  ],
+  "keywords": [
+    "pimatic",
+    "unipi"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mwittig/pimatic-unipi-evok.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mwittig/pimatic-unipi-evok/issues"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "restler-promise": "git+https://github.com/mwittig/restler-promise.git"
+  },
+  "peerDependencies": {},
+  "engines": {
+    "node": ">0.8.x",
+    "npm": ">1.1.x"
+  }
+}
