@@ -32,6 +32,17 @@ module.exports = {
         type: "string"
         default: "1"
   },
+  UniPiDigitalInput: {
+    title: "UniPi Digital Input"
+    description: "UniPi Digital Input"
+    type: "object"
+    extensions: ["xLink"]
+    properties:
+      circuit:
+        description: "The Digital Input circuit id"
+        type: "string"
+        default: "1"
+  },
   UniPiTemperature: {
     title: "UniPi Temperature Sensor"
     description: "UniPi Temperature"

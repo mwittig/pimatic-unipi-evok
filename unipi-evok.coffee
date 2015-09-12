@@ -118,6 +118,12 @@ module.exports = (env) ->
           return new UniPiAnalogInput(config, @, lastState)
       })
 
+      @framework.deviceManager.registerDeviceClass("UniPiDigitalInput", {
+        configDef: deviceConfigDef.UniPiDigitalInput,
+        createCallback: (config, plugin, lastState) =>
+          return new UniPiDigitalInput(config, @, lastState)
+      })
+
       @framework.deviceManager.registerDeviceClass("UniPiTemperature", {
         configDef: deviceConfigDef.UniPiTemperature,
         createCallback: (config, plugin, lastState) =>
@@ -202,6 +208,14 @@ module.exports = (env) ->
       @_dimlevel = lastState?.dimlevel?.value or 0
       @_state = lastState?.state?.value or off
       @_outputVoltage = lastState?.outputVoltage?.value or @_dimlevel / 10
+
+      @attributes = _.cloneDeep(@attributes)
+      @attributes.outputVoltage = {
+        description: "Output Voltage"
+        type: "number"
+        unit: 'V'
+        acronym: 'U'
+      }
       super()
       plugin.updater.registerDevice 'ao', @circuit, @_getUpdateCallback()
 
@@ -225,7 +239,7 @@ module.exports = (env) ->
             json = JSON.parse result.data
             if json.success
               @_setDimlevel newLevelPerCent
-              #@_setAttribute 'outputVoltage', newLevelPerCent / 10
+              @_setAttribute 'outputVoltage', newLevelPerCent / 10
               resolve()
             else
               uniPiError = uniPiHelper.getErrorResult json
@@ -280,7 +294,37 @@ module.exports = (env) ->
 
     getInputVoltage: () ->
       return Promise.resolve(@_inputVoltage)
-      
+
+  class UniPiDigitalInput extends env.devices.ContactSensor
+    # Create a new UniPiDigitalInput device
+    # @param [Object] config    device configuration
+    # @param [UniPiEvokPlugin] plugin   plugin instance
+    # @param [Object] lastState state information stored in database
+    constructor: (@config, plugin, lastState) ->
+      env.logger.debug '[UniPiDigitalInput]', util.inspect(config), lastState
+      @debug = plugin.config.debug
+      @_contact = lastState?.contact?.value or 0.0
+      @id = config.id
+      @name = config.name
+      @circuit = config.circuit
+      @_lastError = ""
+
+      super()
+      plugin.updater.registerDevice 'input', @circuit, @_getUpdateCallback()
+
+    _setAttribute: (attributeName, value) ->
+      if @['_' + attributeName] isnt value
+        @['_' + attributeName] = value
+        @emit attributeName, value
+
+    _getUpdateCallback: () ->
+      return (data) =>
+        env.logger.debug '[UniPiDigitalInput] status update:', util.inspect(data)
+        @_setAttribute "contact", if data.value is 1 then true else false
+
+    getContact: () ->
+      return Promise.resolve(@_contact)
+
   class UniPiTemperature extends env.devices.TemperatureSensor
 
     # Create a new UniPiTemperature device
