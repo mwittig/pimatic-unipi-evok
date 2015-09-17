@@ -9,6 +9,7 @@ module.exports = (env) ->
   util = require 'util'
   WebSocket = require 'ws'
   rest = require('restler-promise')(Promise)
+  UniPiUpdateManager = require('./unipi-update-manager')(env)
 
   # UniPi helper functions
   uniPiHelper =
@@ -39,56 +40,6 @@ module.exports = (env) ->
           return undefined
         obj = obj[key]
       return obj
-
-  class UniPiUpdateManager extends events.EventEmitter
-
-    constructor: (@config, plugin) ->
-      @baseURL = plugin.config.url
-      urlObject = url.parse @baseURL, false, true
-      urlObject.pathname = "ws"
-      url.protocol = if url.protocol is "https:" then "wss:" else "ws:"
-      @wsURL = url.format urlObject
-      env.logger.debug "[UniPiUpdateManager] initializing web socket: ", @wsURL
-      @ws = new WebSocket(@wsURL);
-      super()
-
-      @ws.on('message', (message) =>
-        env.logger.debug "[UniPiUpdateManager] received update:", message
-        try
-          json = JSON.parse message
-          console.log 'received: %s', message
-          @emit json.dev + json.circuit, json if json.dev and json.circuit
-        catch error
-          env.logger.error "[UniPiUpdateManager] exception caught:", error.toString()
-      )
-
-      @ws.on('error', (error) =>
-      )
-    registerDevice: (deviceType, circuit, callback) =>
-      @addListener deviceType + circuit, callback
-      restDeviceType = deviceType
-      unless restDeviceType in ['relay', 'di', 'input', 'ai', 'analoginput', 'ao', 'analogoutput', 'sensor']
-        restDeviceType = 'sensor'
-      @getDeviceStatus restDeviceType, circuit
-
-    getDeviceStatus: (deviceType, circuit) =>
-      urlObject = url.parse @baseURL, false, true
-      urlObject.pathname = "rest/" + deviceType + "/" + circuit
-      env.logger.error "[UniPiUpdateManager] requesting status for device:", url.format(urlObject)
-      rest.get(url.format(urlObject)).then((result) =>
-        console.log("COMPLETE", result.data)
-        try
-          json = JSON.parse result.data
-          unless _.isUndefined(json.dev) or _.isUndefined(json.circuit)
-            @emit json.dev + json.circuit, json
-          else
-            env.logger.error '[UniPiUpdateManager] unable to get device status, invalid data: ', result.data
-        catch error
-          env.logger.error '[UniPiUpdateManager] unable to get device status, exception caught: ', error.toString()
-
-      ).catch((error)  =>
-        console.log("ERROR", error.error)
-      )
 
 
   # ###UniPiEvokPlugin class
