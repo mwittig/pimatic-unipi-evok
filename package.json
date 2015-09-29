@@ -1,7 +1,7 @@
 {
   "name": "pimatic-unipi-evok",
   "description": "Pimatic Plugin for the UniPi board based on Evok - http://www.unipi.technology",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "author": {
     "name": "Marcus Wittig",
     "url": "https://github.com/mwittig/pimatic-unipi-evok"
@@ -10,6 +10,8 @@
   "configSchema": "unipi-evok-config-schema.coffee",
   "files": [
     "unipi-evok.coffee",
+    "unipi-helper.coffee",
+    "unipi-update-manager.coffee",
     "README.md",
     "unipi-evok-config-schema.coffee",
     "device-config-schema.coffee",

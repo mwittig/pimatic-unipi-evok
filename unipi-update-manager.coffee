@@ -9,10 +9,12 @@ module.exports = (env) ->
   util = require 'util'
   WebSocket = require 'ws'
   rest = require('restler-promise')(Promise)
+  uniPiHelper = require('./unipi-helper')(env)
 
   class UniPiUpdateManager extends events.EventEmitter
 
     constructor: (@config, plugin) ->
+      @debug = plugin.config.debug ? false
       @baseURL = plugin.config.url
       urlObject = url.parse @baseURL, false, true
       urlObject.pathname = "ws"
@@ -24,26 +26,28 @@ module.exports = (env) ->
       @_connectWebSocket()
       super()
 
+    _debugLog: () ->
+      env.logger.debug arguments... if @debug
+
     _getWebSocketMessageHandler: () ->
       return (message) =>
-        env.logger.debug "[UniPiUpdateManager] received update:", message
+        @_debugLog "[UniPiUpdateManager] received update:", message
         try
           json = JSON.parse message
-          console.log 'received: %s', message
-          @emit json.dev + json.circuit, json if json.dev and json.circuit
+          @emit json.dev + json.circuit, json if json.dev? and json.circuit?
         catch error
           env.logger.error "[UniPiUpdateManager] exception caught:", error.toString()
 
     _getWebSocketOpenHandler: () ->
       return () =>
-        env.logger.error "[UniPiUpdateManager] Web Socket Opened"
+        @_debugLog "[UniPiUpdateManager] Web Socket Opened"
         @_stopReconnectTimer()
         @_startHeartbeatTimer()
         @getStatusForAllDevices()
 
     _getWebSocketCloseHandler: () ->
       return () =>
-        env.logger.error "[UniPiUpdateManager] Web Socket Closed"
+        @_debugLog "[UniPiUpdateManager] Web Socket Closed"
         @_startReconnectTimer()
         @_stopHeartbeatTimer()
 
@@ -54,7 +58,7 @@ module.exports = (env) ->
         @_stopHeartbeatTimer()
 
     _startReconnectTimer: () ->
-      env.logger.debug "[UniPiUpdateManager] Attempting to reconnect Web Socket in 20s"
+      @_debugLog "[UniPiUpdateManager] Attempting to reconnect Web Socket in 20s"
       @_stopReconnectTimer()
       @_connectTimer = setTimeout(( =>
         @_connectTimer = null
@@ -67,7 +71,7 @@ module.exports = (env) ->
         @_connectTimer = null
 
     _startHeartbeatTimer: () ->
-      env.logger.debug "[UniPiUpdateManager] Starting Web Socket Heartbeat"
+      @_debugLog "[UniPiUpdateManager] Starting Web Socket Heartbeat"
       @_stopReconnectTimer()
       @_heartbeatTimer = setTimeout(( =>
         @_heartbeatTimer = null
@@ -82,17 +86,17 @@ module.exports = (env) ->
     _heartbeatWebSocket: () ->
       @_startHeartbeatTimer()
       if @ws?
-        env.logger.debug "[UniPiUpdateManager] Heartbeat"
+        @_debugLog "[UniPiUpdateManager] Heartbeat"
         @ws.send(" ", (error) =>
           if (error)
-            env.logger.debug "[UniPiUpdateManager] Heartbeat Error", error
+            @_debugLog "[UniPiUpdateManager] Heartbeat Error", error
             @_stopHeartbeatTimer()
             @_startReconnectTimer()
         )
 
     _connectWebSocket: () ->
       if not @ws? or @ws.readyState isnt WebSocket.OPEN
-        env.logger.debug "[UniPiUpdateManager] Connect Web Socket to: ", @wsURL
+        @_debugLog "[UniPiUpdateManager] Connect Web Socket to: ", @wsURL
         @_disconnectWebSocket()
         @ws = new WebSocket(@wsURL)
         @ws.addListener('open', @_getWebSocketOpenHandler())
@@ -119,38 +123,38 @@ module.exports = (env) ->
     getStatusForAllDevices: () =>
       urlObject = url.parse @baseURL, false, true
       urlObject.pathname = "rest/all"
-      env.logger.error "[UniPiUpdateManager] requesting status for all devices:", url.format(urlObject)
+      @_debugLog "[UniPiUpdateManager] requesting status for all devices:", url.format(urlObject)
       rest.get(url.format(urlObject)).then((result) =>
-        env.logger.error("[UniPiUpdateManager] response (status for all devices):", result.data)
-        try
-          json = JSON.parse result.data
+        @_debugLog "[UniPiUpdateManager] response (status for all devices):", result.data
+        uniPiHelper.parseGetResponse(result).then((json) =>
           if _.isArray(json)
             for obj in json
               @emit obj.dev + obj.circuit, obj
           else
             env.logger.error '[UniPiUpdateManager] unable to get device status, invalid data: ', result.data
-        catch error
+        ).catch((error) =>
           env.logger.error '[UniPiUpdateManager] unable to get device status, exception caught: ', error.toString()
-
-      ).catch((error)  =>
-        console.log("ERROR", error.error)
+        )
+      ).catch((errorResult)  =>
+        env.logger.error '[UniPiUpdateManager] unable to get device status, exception caught: ',
+          errorResult.error.toString()
       )
 
     getStatusForDevice: (deviceType, circuit) =>
       urlObject = url.parse @baseURL, false, true
       urlObject.pathname = "rest/" + deviceType + "/" + circuit
-      env.logger.error "[UniPiUpdateManager] requesting status for device:", url.format(urlObject)
+      @_debugLog "[UniPiUpdateManager] requesting status for device:", url.format(urlObject)
       rest.get(url.format(urlObject)).then((result) =>
-        console.log("COMPLETE", result.data)
-        try
-          json = JSON.parse result.data
+        uniPiHelper.parseGetResponse(result).then((json) =>
           unless _.isUndefined(json.dev) or _.isUndefined(json.circuit)
+            @_debugLog "[UniPiUpdateManager] status:", json.dev + json.circuit, json
             @emit json.dev + json.circuit, json
           else
             env.logger.error '[UniPiUpdateManager] unable to get device status, invalid data: ', result.data
-        catch error
+        ).catch((error) =>
           env.logger.error '[UniPiUpdateManager] unable to get device status, exception caught: ', error.toString()
-
-      ).catch((error)  =>
-        console.log("ERROR", error.error)
+        )
+      ).catch((errorResult) =>
+        env.logger.error '[UniPiUpdateManager] unable to get device status, exception caught: ',
+          errorResult.error.toString()
       )

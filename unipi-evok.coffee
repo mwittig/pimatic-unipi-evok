@@ -5,41 +5,10 @@ module.exports = (env) ->
   _ = env.require 'lodash'
   net = require 'net'
   events = require 'events'
-  url = require 'url'
   util = require 'util'
-  WebSocket = require 'ws'
   rest = require('restler-promise')(Promise)
+  uniPiHelper = require('./unipi-helper')(env)
   UniPiUpdateManager = require('./unipi-update-manager')(env)
-
-  # UniPi helper functions
-  uniPiHelper =
-    createDeviceUrl: (baseUrl, deviceType, circuit) ->
-      urlObject = url.parse baseUrl, false, true
-      urlObject.pathname = "rest/" + deviceType + "/" + circuit
-      return url.format urlObject
-
-    getErrorResult: (data) ->
-      errorMessage = uniPiHelper.getPath data, 'errors.__all__'
-      console.log data, errorMessage
-      unless _.isString errorMessage
-        errorMessage = "failed"
-      return new Error errorMessage
-
-    normalize: (value, lowerRange, upperRange) ->
-      if upperRange
-        return Math.min (Math.max value, lowerRange), upperRange
-      else
-        return Math.max value lowerRange
-
-    # helper function to get the object path as older versions of lodash do not support this
-    getPath: (obj, path) ->
-      return undefined if not _.isObject obj or not _.isString path
-      keys = path.split '.'
-      for key in keys
-        if not _.isObject(obj) or not obj.hasOwnProperty(key)
-          return undefined
-        obj = obj[key]
-      return obj
 
 
   # ###UniPiEvokPlugin class
@@ -89,8 +58,8 @@ module.exports = (env) ->
     # @param [UniPiEvokPlugin] plugin   plugin instance
     # @param [Object] lastState state information stored in database
     constructor: (@config, plugin, lastState) ->
-      env.logger.debug "[UniPiRelay] initializing: ", util.inspect(config)
-      @debug = plugin.config.debug
+      @debug = plugin.config.debug ? false
+      env.logger.debug "[UniPiRelay] initializing:", util.inspect(config) if @debug
       @_lastError = ""
       @id = config.id
       @name = config.name
@@ -102,52 +71,47 @@ module.exports = (env) ->
       super()
       plugin.updater.registerDevice 'relay', @circuit, @_getUpdateCallback()
 
+    _debug: () ->
+      env.logger.debug arguments... if @debug
+
     _getUpdateCallback: () ->
       return (data) =>
-        env.logger.debug '[UniPiRelay] status update:', util.inspect(data)
+        @_debug '[UniPiRelay] status update:', util.inspect(data)
         @_setState if data.value is 1 then true else false
 
     getState: () ->
       return Promise.resolve @_state
 
     changeStateTo: (newState) ->
-      env.logger.debug '[UniPiRelay] state change requested to:', newState
+      @_debug '[UniPiRelay] state change requested to:', newState
       return new Promise( (resolve, reject) =>
         rest.post(@evokDeviceUrl, {data: {value: if newState then 1 else 0}}, {}).then((result) =>
-          try
-            json = JSON.parse result.data
-            if json.success
-              @_setState newState
-              resolve()
-            else
-              uniPiError = uniPiHelper.getErrorResult json
-              env.logger.error '[UniPiRelay] unable to change switch state of device', @id + ': ', uniPiError.toString()
-              reject uniPiError
-          catch err
-            env.logger.error '[UniPiRelay] unable to change switch state of device', @id + ': ', err.toString()
-            reject err
+          uniPiHelper.parsePostResponse(result).then((data) =>
+            @_setState newState
+            @_debug '[UniPiRelay] state changed to:', newState
+            resolve()
+          ).catch((uniPiError) =>
+            env.logger.error '[UniPiRelay] unable to change switch state of device', @id + ': ', uniPiError.toString()
+            reject uniPiError
+          )
         ).catch((result) ->
+          console.log result
           env.logger.error '[UniPiRelay] unable to change switch state of device', @id + ': ', result.error.toString()
           reject result.error
         )
       )
 
+
   # Device class representing an UniPi analog output
   class UniPiAnalogOutput extends env.devices.DimmerActuator
-#    attributes:
-#      outputVoltage:
-#        description: "Output Voltage"
-#        type: "number"
-#        unit: 'V'
-#        acronym: 'U'
 
     # Create a new UniPiAnalogOutput device
     # @param [Object] config    device configuration
     # @param [UniPiEvokPlugin] plugin   plugin instance
     # @param [Object] lastState state information stored in database
     constructor: (@config, plugin, lastState) ->
-      env.logger.debug "[UniPiAnalogOutput] initializing: ", util.inspect(config)
-      @debug = plugin.config.debug
+      @debug = plugin.config.debug ? false
+      env.logger.debug "[UniPiAnalogOutput] initializing:", util.inspect(config) if @debug
       @_lastError = ""
       @id = config.id
       @name = config.name
@@ -170,9 +134,12 @@ module.exports = (env) ->
       super()
       plugin.updater.registerDevice 'ao', @circuit, @_getUpdateCallback()
 
+    _debug: () ->
+      env.logger.debug arguments... if @debug
+
     _getUpdateCallback: () ->
       return (data) =>
-        env.logger.debug '[UniPiAnalogOutput] status update:', util.inspect(data)
+        @_debug '[UniPiAnalogOutput] status update:', util.inspect(data)
         #@_setState if data.value is 1 then true else false
         @_setDimlevel data.value * 10
         #@_setAttribute 'outputVoltage', data.value
@@ -183,22 +150,17 @@ module.exports = (env) ->
         @emit attributeName, value
 
     changeDimlevelTo: (newLevelPerCent) ->
-      env.logger.debug '[UniPiAnalogOutput] state change requested to (per cent):', newLevelPerCent
+      @_debug '[UniPiAnalogOutput] state change requested to (per cent):', newLevelPerCent
       return new Promise( (resolve, reject) =>
         rest.post(@evokDeviceUrl, {data: {value: newLevelPerCent / 10}}, {}).then((result) =>
-          try
-            json = JSON.parse result.data
-            if json.success
-              @_setDimlevel newLevelPerCent
-              @_setAttribute 'outputVoltage', newLevelPerCent / 10
-              resolve()
-            else
-              uniPiError = uniPiHelper.getErrorResult json
-              env.logger.error '[UniPiAnalogOutput] unable to change output level of device', @id + ': ', uniPiError.toString()
-              reject uniPiError
-          catch err
-            env.logger.error '[UniPiAnalogOutput] unable to change output level of device', @id + ': ', err.toString()
-            reject err
+          uniPiHelper.parsePostResponse(result).then((data) =>
+            @_setDimlevel newLevelPerCent
+            @_setAttribute 'outputVoltage', newLevelPerCent / 10
+            resolve()
+          ).catch((uniPiError) =>
+            env.logger.error '[UniPiAnalogOutput] unable to change switch state of device', @id + ': ', uniPiError.toString()
+            reject uniPiError
+          )
         ).catch((result) ->
           env.logger.error '[UniPiAnalogOutput] unable to change output level of device', @id + ': ', result.error.toString()
           reject result.error
@@ -208,6 +170,8 @@ module.exports = (env) ->
     getOutputVoltage: () ->
       return Promise.resolve(@_outputVoltage)
 
+
+  # Device class representing an UniPi analog input
   class UniPiAnalogInput extends env.devices.Device
 
     attributes:
@@ -222,8 +186,8 @@ module.exports = (env) ->
     # @param [UniPiEvokPlugin] plugin   plugin instance
     # @param [Object] lastState state information stored in database
     constructor: (@config, plugin, lastState) ->
-      env.logger.debug '[UniPiAnalogInput]', util.inspect(config), lastState
-      @debug = plugin.config.debug
+      @debug = plugin.config.debug ? false
+      env.logger.debug '[UniPiAnalogInput] initializing:', util.inspect(config) if @debug
       @_inputVoltage = lastState?.inputVoltage?.value or 0.0
       @id = config.id
       @name = config.name
@@ -240,20 +204,22 @@ module.exports = (env) ->
 
     _getUpdateCallback: () ->
       return (data) =>
-        env.logger.debug '[UniPiAnalogInput] status update:', util.inspect(data)
+        env.logger.debug '[UniPiAnalogInput] status update:', util.inspect(data) if @debug
         @_setAttribute "inputVoltage", data.value
 
     getInputVoltage: () ->
       return Promise.resolve(@_inputVoltage)
 
+
+  # Device class representing an UniPi digital output
   class UniPiDigitalInput extends env.devices.ContactSensor
     # Create a new UniPiDigitalInput device
     # @param [Object] config    device configuration
     # @param [UniPiEvokPlugin] plugin   plugin instance
     # @param [Object] lastState state information stored in database
     constructor: (@config, plugin, lastState) ->
-      env.logger.debug '[UniPiDigitalInput]', util.inspect(config), lastState
-      @debug = plugin.config.debug
+      @debug = plugin.config.debug ? false
+      env.logger.debug '[UniPiDigitalInput] initializing:', util.inspect(config) if @debug
       @_contact = lastState?.contact?.value or 0.0
       @id = config.id
       @name = config.name
@@ -270,12 +236,14 @@ module.exports = (env) ->
 
     _getUpdateCallback: () ->
       return (data) =>
-        env.logger.debug '[UniPiDigitalInput] status update:', util.inspect(data)
+        env.logger.debug '[UniPiDigitalInput] status update:', util.inspect(data) if @debug
         @_setAttribute "contact", if data.value is 1 then true else false
 
     getContact: () ->
       return Promise.resolve(@_contact)
 
+
+  # Device class representing an UniPi temperature sensor
   class UniPiTemperature extends env.devices.TemperatureSensor
 
     # Create a new UniPiTemperature device
@@ -283,8 +251,8 @@ module.exports = (env) ->
     # @param [UniPiEvokPlugin] plugin   plugin instance
     # @param [Object] lastState state information stored in database
     constructor: (@config, plugin, lastState) ->
-      env.logger.debug '[UniPiTemperature]', util.inspect(config), lastState
-      @debug = plugin.config.debug
+      @debug = plugin.config.debug ? false
+      env.logger.debug '[UniPiTemperature] initializing:', util.inspect(config) if @debug
       @_temperature = lastState?.temperature?.value or 0.0
       @id = config.id
       @name = config.name
@@ -300,8 +268,8 @@ module.exports = (env) ->
         @emit attributeName, value
       
     _getUpdateCallback: () ->                                          
-      return (data) =>                                                
-        env.logger.debug '[UniPiTemperature] status update:', util.inspect(data)
+      return (data) =>
+        env.logger.debug '[UniPiTemperature] status update:', util.inspect(data) if @debug
         @_setAttribute "temperature", data.value
 
     getTemperature: () ->

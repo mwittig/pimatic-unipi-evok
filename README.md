@@ -101,8 +101,8 @@ The Analog Input Device exhibits the following attributes:
 | inputVoltage  | V     | Number  | U       | Input Voltage                    |
 
 The following predicates are supported:
-* inputVoltage of {device} is equal to|is less than| is greater than {value},
-  more operators are supported
+* inputVoltage of {device} is equal to | is less than | is greater than {value},
+  more comparison operators are supported
 
 
 ### Analog Output Device
@@ -129,8 +129,8 @@ The Analog Output Device exhibits the following attributes:
 | outputVoltage | V     | Number  | U       | Output Voltage                   |
 
 The following predicates and actions are supported:
-* outputVoltage of {device} is equal to|is less than| is greater than {value},
-  more operators are supported
+* outputVoltage of {device} is equal to | is less than | is greater than {value},
+  more comparison operators are supported
 * dim {device} to {Value}, where {Value} is 0-100
 
 ### Temperature Device
@@ -157,5 +157,10 @@ The Temperature Device exhibits the following attributes:
 | temperature   | °C    | Number  | T       | Temperature                      |
 
 The following predicates are supported:
-* temperature of {device} is equal to|is less than| is greater than {value},
-  more operators are supported
+* temperature of {device} is equal to | is less than | is greater than {value},
+  more comparison operators are supported
+
+## Acknowledgments
+
+I would like to thank [UniPi.technology](http://www.unipi.technology) for providing me with a board for development. 
+In particular, I would like to thank Tomáš Hora for his excellent support!
