@@ -10,7 +10,7 @@ module.exports = {
       description: "URL of the Evok Web Server"
       type: "string"
     timeout:
-      description: "Timeout in seconds for HTTP REST Requests, value range [10-86400]"
+      description: "Timeout in seconds for HTTP REST Requests, value range [5-86400]"
       type: "number"
-      default: 20
+      default: 10
 }

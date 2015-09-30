@@ -58,7 +58,7 @@ module.exports = (env) ->
     # @param [UniPiEvokPlugin] plugin   plugin instance
     # @param [Object] lastState state information stored in database
     constructor: (@config, plugin, lastState) ->
-      @debug = plugin.config.debug ? false
+      @debug = plugin.config.debug ? plugin.config.__proto__.debug
       env.logger.debug "[UniPiRelay] initializing:", util.inspect(config) if @debug
       @_lastError = ""
       @id = config.id
@@ -66,7 +66,7 @@ module.exports = (env) ->
       @circuit = config.circuit
       @evokDeviceUrl = uniPiHelper.createDeviceUrl plugin.config.url, "relay", @circuit
       @options = {
-        timeout: 1000 * uniPiHelper.normalize plugin.config.timeout, 10, 86400
+        timeout: 1000 * uniPiHelper.normalize plugin.config.timeout ? plugin.config.__proto__.timeout, 5, 86400
       }
       super()
       plugin.updater.registerDevice 'relay', @circuit, @_getUpdateCallback()
@@ -85,19 +85,18 @@ module.exports = (env) ->
     changeStateTo: (newState) ->
       @_debug '[UniPiRelay] state change requested to:', newState
       return new Promise( (resolve, reject) =>
-        rest.post(@evokDeviceUrl, {data: {value: if newState then 1 else 0}}, {}).then((result) =>
+        rest.post(@evokDeviceUrl, _.assign({data: {value: if newState then 1 else 0}}, @options)).then((result) =>
           uniPiHelper.parsePostResponse(result).then((data) =>
             @_setState newState
             @_debug '[UniPiRelay] state changed to:', newState
             resolve()
           ).catch((uniPiError) =>
             env.logger.error '[UniPiRelay] unable to change switch state of device', @id + ': ', uniPiError.toString()
-            reject uniPiError
+            reject uniPiError.toString()
           )
         ).catch((result) ->
-          console.log result
           env.logger.error '[UniPiRelay] unable to change switch state of device', @id + ': ', result.error.toString()
-          reject result.error
+          reject result.error.toString()
         )
       )
 
@@ -110,7 +109,7 @@ module.exports = (env) ->
     # @param [UniPiEvokPlugin] plugin   plugin instance
     # @param [Object] lastState state information stored in database
     constructor: (@config, plugin, lastState) ->
-      @debug = plugin.config.debug ? false
+      @debug = plugin.config.debug ? plugin.config.__proto__.debug
       env.logger.debug "[UniPiAnalogOutput] initializing:", util.inspect(config) if @debug
       @_lastError = ""
       @id = config.id
@@ -118,7 +117,7 @@ module.exports = (env) ->
       @circuit = config.circuit
       @evokDeviceUrl = uniPiHelper.createDeviceUrl plugin.config.url, "ao", @circuit
       @options = {
-        timeout: 1000 * uniPiHelper.normalize plugin.config.timeout, 10, 86400
+        timeout: 1000 * uniPiHelper.normalize plugin.config.timeout ? plugin.config.__proto__.timeout, 5, 86400
       }
       @_dimlevel = lastState?.dimlevel?.value or 0
       @_state = lastState?.state?.value or off
@@ -152,18 +151,18 @@ module.exports = (env) ->
     changeDimlevelTo: (newLevelPerCent) ->
       @_debug '[UniPiAnalogOutput] state change requested to (per cent):', newLevelPerCent
       return new Promise( (resolve, reject) =>
-        rest.post(@evokDeviceUrl, {data: {value: newLevelPerCent / 10}}, {}).then((result) =>
+        rest.post(@evokDeviceUrl, _.assign({data: {value: newLevelPerCent / 10}}, @options)).then((result) =>
           uniPiHelper.parsePostResponse(result).then((data) =>
             @_setDimlevel newLevelPerCent
             @_setAttribute 'outputVoltage', newLevelPerCent / 10
             resolve()
           ).catch((uniPiError) =>
             env.logger.error '[UniPiAnalogOutput] unable to change switch state of device', @id + ': ', uniPiError.toString()
-            reject uniPiError
+            reject uniPiError.toString()
           )
         ).catch((result) ->
           env.logger.error '[UniPiAnalogOutput] unable to change output level of device', @id + ': ', result.error.toString()
-          reject result.error
+          reject result.error.toString()
         )
       )
 
@@ -186,7 +185,7 @@ module.exports = (env) ->
     # @param [UniPiEvokPlugin] plugin   plugin instance
     # @param [Object] lastState state information stored in database
     constructor: (@config, plugin, lastState) ->
-      @debug = plugin.config.debug ? false
+      @debug = plugin.config.debug ? plugin.config.__proto__.debug
       env.logger.debug '[UniPiAnalogInput] initializing:', util.inspect(config) if @debug
       @_inputVoltage = lastState?.inputVoltage?.value or 0.0
       @id = config.id
@@ -218,7 +217,7 @@ module.exports = (env) ->
     # @param [UniPiEvokPlugin] plugin   plugin instance
     # @param [Object] lastState state information stored in database
     constructor: (@config, plugin, lastState) ->
-      @debug = plugin.config.debug ? false
+      @debug = plugin.config.debug ? plugin.config.__proto__.debug
       env.logger.debug '[UniPiDigitalInput] initializing:', util.inspect(config) if @debug
       @_contact = lastState?.contact?.value or 0.0
       @id = config.id
@@ -251,7 +250,7 @@ module.exports = (env) ->
     # @param [UniPiEvokPlugin] plugin   plugin instance
     # @param [Object] lastState state information stored in database
     constructor: (@config, plugin, lastState) ->
-      @debug = plugin.config.debug ? false
+      @debug = plugin.config.debug ? plugin.config.__proto__.debug
       env.logger.debug '[UniPiTemperature] initializing:', util.inspect(config) if @debug
       @_temperature = lastState?.temperature?.value or 0.0
       @id = config.id

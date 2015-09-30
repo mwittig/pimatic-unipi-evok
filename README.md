@@ -25,7 +25,7 @@ The plugin has the following configuration properties:
 |:----------|:---------|:--------|:--------------------------------------------|
 | url       | -        | String  | URL of the Evok Web Server                  |
 | debug     | false    | Boolean | Provide additional debug output if true     |
-| timeout   | 20       | Number  | Timeout in seconds for HTTP REST Requests   |
+| timeout   | 10       | Number  | Timeout in seconds for HTTP REST Requests   |
 
 ## Device Configuration
 

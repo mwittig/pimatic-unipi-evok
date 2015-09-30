@@ -14,12 +14,15 @@ module.exports = (env) ->
   class UniPiUpdateManager extends events.EventEmitter
 
     constructor: (@config, plugin) ->
-      @debug = plugin.config.debug ? false
+      @debug = plugin.config.debug ? plugin.config.__proto__.debug
       @baseURL = plugin.config.url
       urlObject = url.parse @baseURL, false, true
       urlObject.pathname = "ws"
       url.protocol = if url.protocol is "https:" then "wss:" else "ws:"
       @wsURL = url.format urlObject
+      @options = {
+        timeout: 1000 * uniPiHelper.normalize plugin.config.timeout ? plugin.config.__proto__.timeout, 5, 86400
+      }
       @ws = null
       @_connectTimer = null
       @_heartbeatTimer = null
@@ -124,7 +127,7 @@ module.exports = (env) ->
       urlObject = url.parse @baseURL, false, true
       urlObject.pathname = "rest/all"
       @_debugLog "[UniPiUpdateManager] requesting status for all devices:", url.format(urlObject)
-      rest.get(url.format(urlObject)).then((result) =>
+      rest.get(url.format(urlObject), @options).then((result) =>
         @_debugLog "[UniPiUpdateManager] response (status for all devices):", result.data
         uniPiHelper.parseGetResponse(result).then((json) =>
           if _.isArray(json)
@@ -144,7 +147,7 @@ module.exports = (env) ->
       urlObject = url.parse @baseURL, false, true
       urlObject.pathname = "rest/" + deviceType + "/" + circuit
       @_debugLog "[UniPiUpdateManager] requesting status for device:", url.format(urlObject)
-      rest.get(url.format(urlObject)).then((result) =>
+      rest.get(url.format(urlObject), @options).then((result) =>
         uniPiHelper.parseGetResponse(result).then((json) =>
           unless _.isUndefined(json.dev) or _.isUndefined(json.circuit)
             @_debugLog "[UniPiUpdateManager] status:", json.dev + json.circuit, json
