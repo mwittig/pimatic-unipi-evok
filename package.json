@@ -1,21 +1,18 @@
 {
   "name": "pimatic-unipi-evok",
   "description": "Pimatic Plugin for the UniPi board based on Evok - http://www.unipi.technology",
-  "version": "0.1.1",
-  "author": {
-    "name": "Marcus Wittig",
-    "url": "https://github.com/mwittig/pimatic-unipi-evok"
-  },
+  "version": "0.1.2",
+  "author": "Marcus Wittig (https://github.com/mwittig/pimatic-unipi-evok)",
   "main": "unipi-evok.coffee",
   "configSchema": "unipi-evok-config-schema.coffee",
   "files": [
     "unipi-evok.coffee",
     "unipi-helper.coffee",
     "unipi-update-manager.coffee",
-    "README.md",
     "unipi-evok-config-schema.coffee",
     "device-config-schema.coffee",
-    "LICENSE"
+    "LICENSE",
+    "README.md"
   ],
   "keywords": [
     "pimatic",
@@ -37,5 +34,10 @@
   "engines": {
     "node": ">0.8.x",
     "npm": ">1.1.x"
+  },
+  "homepage": "https://github.com/mwittig/pimatic-unipi-evok#readme",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   }
 }
