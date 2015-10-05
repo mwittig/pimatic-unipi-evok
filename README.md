@@ -1,5 +1,9 @@
 # pimatic-unipi
 
+[![Dependency Status](https://david-dm.org/mwittig/pimatic-unipi-evok.svg)](https://david-dm.org/mwittig/pimatic-unipi-evok)
+[![npm version](https://badge.fury.io/js/pimatic-unipi-evok.svg)](http://badge.fury.io/js/pimatic-unipi-evok)
+
+
 Pimatic Plugin for the [UniPi board](http://www.unipi.technology) based
 on the [Evok UniPi API](https://github.com/UniPiTechnology/evok).
 
@@ -49,9 +53,16 @@ The Relay Device has the following configuration properties:
 |:----------|:---------|:--------|:--------------------------------------------|
 | circuit   | "1"      | String  | Circuit id as shown by Evok                 |
 
+The Relay Device exhibits the following attributes:
+
+| Property      | Unit  | Type    | Acronym | Description                            |
+|:--------------|:------|:--------|:--------|:---------------------------------------|
+| state         | -     | Boolean | -       | Switch State, true is on, false is off |
+
 The following predicates and actions are supported:
 * {device} is turned on|off
 * switch {device} on|off
+* toggle {device}
 
 
 ### Digital Input Device
@@ -83,7 +94,7 @@ to provide the circuit id as shown by Evok.
 
     {
           "id": "unipi3",
-            "class": "UniPiAnalogInput",
+          "class": "UniPiAnalogInput",
           "name": "Analog Input",
           "circuit": "2"
     }
@@ -127,6 +138,7 @@ The Analog Output Device exhibits the following attributes:
 | Property      | Unit  | Type    | Acronym | Description                      |
 |:--------------|:------|:--------|:--------|:---------------------------------|
 | outputVoltage | V     | Number  | U       | Output Voltage                   |
+| dimlevel      | -     | Number  | -       | 0-100% (Output Voltage Control)  | 
 
 The following predicates and actions are supported:
 * outputVoltage of {device} is equal to | is less than | is greater than {value},
