@@ -36,7 +36,7 @@ module.exports = {
     title: "UniPi Digital Input"
     description: "UniPi Digital Input"
     type: "object"
-    extensions: ["xLink"]
+    extensions: ["xLink", "xOpenedLabel", "xClosedLabel"]
     properties:
       circuit:
         description: "The Digital Input circuit id"
