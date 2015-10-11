@@ -11,6 +11,7 @@
     "unipi-update-manager.coffee",
     "unipi-evok-config-schema.coffee",
     "device-config-schema.coffee",
+    "config-snippets.txt",
     "LICENSE",
     "README.md"
   ],

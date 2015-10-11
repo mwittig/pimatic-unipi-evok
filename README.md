@@ -33,7 +33,10 @@ The plugin has the following configuration properties:
 
 ## Device Configuration
 
-Devices must be added manually to the device section of your pimatic config.
+Devices must be added manually to the device section of your pimatic config. To
+simplify the configuration, 
+[snippets](https://raw.githubusercontent.com/mwittig/pimatic-unipi-evok/master/config-snippets.txt) 
+are provided for all device types.
 
 ### Relay Device
 
@@ -41,7 +44,7 @@ The Relay Device is based on the PowerSwitch device class. You need to provide
 the circuit id as shown by Evok.
 
     {
-          "id": "unipi1",
+          "id": "unipiRelay-1",
           "class": "UniPiRelay",
           "name": "Relay 1",
           "circuit": "1"
@@ -71,7 +74,7 @@ The Digital Input Device is based on the ContactSensor device class. You need
 to provide the circuit id as shown by Evok.
 
     {
-          "id": "unipi2",
+          "id": "unipiDigitalInput-1",
           "class": "UniPiDigitalInput",
           "name": "Digital Input"
           "circuit": "1"
@@ -93,7 +96,7 @@ The Analog Input Device is based on the Sensor Device device class. You need
 to provide the circuit id as shown by Evok.
 
     {
-          "id": "unipi3",
+          "id": "unipiAnalogInput-1",
           "class": "UniPiAnalogInput",
           "name": "Analog Input",
           "circuit": "2"
@@ -121,7 +124,7 @@ The following predicates are supported:
 The Analog Output Device is based on the DimmerActuator device class.
 
     {
-          "id": "unipi4",
+          "id": "unipiAnalogOutput-1",
           "class": "UniPiAnalogOutput",
           "name": "Analog Output",
           "circuit": "1"
@@ -150,7 +153,7 @@ The following predicates and actions are supported:
 The Temperature Device is based on the TemperatureSensor device class.
 
     {
-      "id": "unipi5",
+      "id": "unipiTemperature-1",
       "class": "UniPiTemperature",
       "name": "Temperature",
       "circuit": "2832ECD906000025"
