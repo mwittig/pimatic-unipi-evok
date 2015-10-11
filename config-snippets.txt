@@ -1,0 +1,144 @@
+    #---8<------8<------8<------8<------8<------8<------8<------8<---
+	# UniPiRelay
+	#---8<------8<------8<------8<------8<------8<------8<------8<---
+	
+	{
+      "id": "unipiRelay-1",
+      "class": "unipiRelay-elay",
+      "name": "UniPi Relay 1",
+      "circuit": "1"
+    },
+    {
+      "id": "unipiRelay-2",
+      "class": "unipiRelay-elay",
+      "name": "UniPi Relay 2",
+      "circuit": "2"
+    },
+    {
+      "id": "unipiRelay-3",
+      "class": "unipiRelay-elay",
+      "name": "UniPi Relay 3",
+      "circuit": "3"
+    },
+    {
+      "id": "unipiRelay-4",
+      "class": "unipiRelay-elay",
+      "name": "UniPi Relay 4",
+      "circuit": "4"
+    },
+    {
+      "id": "unipiRelay-5",
+      "class": "unipiRelay-elay",
+      "name": "UniPi Relay 5",
+      "circuit": "5"
+    },
+    {
+      "id": "unipiRelay-6",
+      "class": "unipiRelay-elay",
+      "name": "UniPi Relay 6",
+      "circuit": "6"
+    },
+    {
+      "id": "unipiRelay-7",
+      "class": "unipiRelay-elay",
+      "name": "UniPi Relay 7",
+      "circuit": "7"
+    },
+    {
+      "id": "unipiRelay-8",
+      "class": "unipiRelay-elay",
+      "name": "UniPi Relay 8",
+      "circuit": "8"
+    },
+	
+	#---8<------8<------8<------8<------8<------8<------8<------8<---
+	# UniPiTemperature
+	#---8<------8<------8<------8<------8<------8<------8<------8<---
+	
+    {
+      "id": "unipiTemperature-1",
+      "class": "UniPiTemperature",
+      "name": "UniPi Temperature",
+      "circuit": "xxx CHANGE ME xxx"
+    },
+	
+	#---8<------8<------8<------8<------8<------8<------8<------8<---
+	# UniPiAnalogOutput
+	#---8<------8<------8<------8<------8<------8<------8<------8<---
+	
+    {
+      "id": "unipiAnalogOutput-1",
+      "class": "UniPiAnalogOutput",
+      "name": "UniPi Analog Output 1",
+      "circuit": "1"
+    },
+	
+	#---8<------8<------8<------8<------8<------8<------8<------8<---
+	# UniPiAnalogInput
+	#---8<------8<------8<------8<------8<------8<------8<------8<---
+	
+    {
+      "id": "unipiAnalogInput-1",
+      "class": "UniPiAnalogInput",
+      "name": "UniPi Analog Input 1",
+      "circuit": "1"
+    },	
+    {
+      "id": "unipiAnalogInput-2",
+      "class": "UniPiAnalogInput",
+      "name": "UniPi Analog Input 2",
+      "circuit": "2"
+    },
+	
+	#---8<------8<------8<------8<------8<------8<------8<------8<---
+	# UniPiDigitalInput
+	#---8<------8<------8<------8<------8<------8<------8<------8<---
+	
+    {
+      "id": "UniPiDigitalInput-1",
+      "class": "UniPiDigitalInput",
+      "name": "UniPi Digital Input 1",
+      "circuit": "1"
+    },
+    {
+      "id": "UniPiDigitalInput-2",
+      "class": "UniPiDigitalInput",
+      "name": "UniPi Digital Input 2",
+      "circuit": "2"
+    },
+    {
+      "id": "UniPiDigitalInput-3",
+      "class": "UniPiDigitalInput",
+      "name": "UniPi Digital Input 3",
+      "circuit": "3"
+    },
+    {
+      "id": "UniPiDigitalInput-4",
+      "class": "UniPiDigitalInput",
+      "name": "UniPi Digital Input 4",
+      "circuit": "4"
+    },
+    {
+      "id": "UniPiDigitalInput-5",
+      "class": "UniPiDigitalInput",
+      "name": "UniPi Digital Input 5",
+      "circuit": "5"
+    },
+    {
+      "id": "UniPiDigitalInput-6",
+      "class": "UniPiDigitalInput",
+      "name": "UniPi Digital Input 6",
+      "circuit": "6"
+    },
+    {
+      "id": "UniPiDigitalInput-7",
+      "class": "UniPiDigitalInput",
+      "name": "UniPi Digital Input 7",
+      "circuit": "7"
+    },
+    {
+      "id": "UniPiDigitalInput-8",
+      "class": "UniPiDigitalInput",
+      "name": "UniPi Digital Input 8",
+      "circuit": "8"
+    },

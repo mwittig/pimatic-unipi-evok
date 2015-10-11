@@ -24,6 +24,7 @@ module.exports = (env) ->
         timeout: 1000 * uniPiHelper.normalize plugin.config.timeout ? plugin.config.__proto__.timeout, 5, 86400
       }
       @ws = null
+      @_lastError = ''
       @_connectTimer = null
       @_heartbeatTimer = null
       @_connectWebSocket()
@@ -32,31 +33,39 @@ module.exports = (env) ->
     _debugLog: () ->
       env.logger.debug arguments... if @debug
 
+    _errorLog: () ->
+      newError = util.format arguments...
+      if @_lastError isnt newError or @debug
+        env.logger.error newError
+        @_lastError = newError
+
     _getWebSocketMessageHandler: () ->
       return (message) =>
         @_debugLog "[UniPiUpdateManager] received update:", message
         try
           json = JSON.parse message
           @emit json.dev + json.circuit, json if json.dev? and json.circuit?
+          @_lastError = ''
         catch error
-          env.logger.error "[UniPiUpdateManager] exception caught:", error.toString()
+          @_errorLog "[UniPiUpdateManager] exception caught:", error.toString()
 
     _getWebSocketOpenHandler: () ->
       return () =>
         @_debugLog "[UniPiUpdateManager] Web Socket Opened"
+        @_lastError = ''
         @_stopReconnectTimer()
         @_startHeartbeatTimer()
         @getStatusForAllDevices()
 
     _getWebSocketCloseHandler: () ->
       return () =>
-        @_debugLog "[UniPiUpdateManager] Web Socket Closed"
+        @_errorLog "[UniPiUpdateManager] Web Socket Closed"
         @_startReconnectTimer()
         @_stopHeartbeatTimer()
 
     _getWebSocketErrorHandler: () ->
       return (error) =>
-        env.logger.error "[UniPiUpdateManager] Web Socket Error:", error.toString()
+        @_errorLog '[UniPiUpdateManager] Web Socket Error: ' + error.toString()
         @_startReconnectTimer()
         @_stopHeartbeatTimer()
 
@@ -131,15 +140,16 @@ module.exports = (env) ->
         @_debugLog "[UniPiUpdateManager] response (status for all devices):", result.data
         uniPiHelper.parseGetResponse(result).then((json) =>
           if _.isArray(json)
+            @_lastError = ''
             for obj in json
               @emit obj.dev + obj.circuit, obj
           else
-            env.logger.error '[UniPiUpdateManager] unable to get device status, invalid data: ', result.data
+            @_errorLog '[UniPiUpdateManager] unable to get device status, invalid data: ', result.data
         ).catch((error) =>
-          env.logger.error '[UniPiUpdateManager] unable to get device status, exception caught: ', error.toString()
+          @_errorLog '[UniPiUpdateManager] unable to get device status, exception caught: ', error.toString()
         )
       ).catch((errorResult)  =>
-        env.logger.error '[UniPiUpdateManager] unable to get device status, exception caught: ',
+        @_errorLog '[UniPiUpdateManager] unable to get device status, exception caught: ',
           errorResult.error.toString()
       )
 
@@ -150,14 +160,15 @@ module.exports = (env) ->
       rest.get(url.format(urlObject), @options).then((result) =>
         uniPiHelper.parseGetResponse(result).then((json) =>
           unless _.isUndefined(json.dev) or _.isUndefined(json.circuit)
+            @_lastError = ''
             @_debugLog "[UniPiUpdateManager] status:", json.dev + json.circuit, json
             @emit json.dev + json.circuit, json
           else
-            env.logger.error '[UniPiUpdateManager] unable to get device status, invalid data: ', result.data
+            @_errorLog '[UniPiUpdateManager] unable to get device status, invalid data: ', result.data
         ).catch((error) =>
-          env.logger.error '[UniPiUpdateManager] unable to get device status, exception caught: ', error.toString()
+          @_errorLog '[UniPiUpdateManager] unable to get device status, exception caught: ', error.toString()
         )
       ).catch((errorResult) =>
-        env.logger.error '[UniPiUpdateManager] unable to get device status, exception caught: ',
+        @_errorLog '[UniPiUpdateManager] unable to get device status, exception caught: ',
           errorResult.error.toString()
       )
