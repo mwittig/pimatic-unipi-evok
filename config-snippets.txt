@@ -4,49 +4,49 @@
 	
 	{
 	  "id": "unipiRelay-1",
-	  "class": "unipiRelay-elay",
+	  "class": "UniPiRelay",
 	  "name": "UniPi Relay 1",
 	  "circuit": "1"
 	},
 	{
 	  "id": "unipiRelay-2",
-	  "class": "unipiRelay-elay",
+	  "class": "UniPiRelay",
 	  "name": "UniPi Relay 2",
 	  "circuit": "2"
 	},
 	{
 	  "id": "unipiRelay-3",
-	  "class": "unipiRelay-elay",
+	  "class": "UniPiRelay",
 	  "name": "UniPi Relay 3",
 	  "circuit": "3"
 	},
 	{
 	  "id": "unipiRelay-4",
-	  "class": "unipiRelay-elay",
+	  "class": "UniPiRelay",
 	  "name": "UniPi Relay 4",
 	  "circuit": "4"
 	},
 	{
 	  "id": "unipiRelay-5",
-	  "class": "unipiRelay-elay",
+	  "class": "UniPiRelay",
 	  "name": "UniPi Relay 5",
 	  "circuit": "5"
 	},
 	{
 	  "id": "unipiRelay-6",
-	  "class": "unipiRelay-elay",
+	  "class": "UniPiRelay",
 	  "name": "UniPi Relay 6",
 	  "circuit": "6"
 	},
 	{
 	  "id": "unipiRelay-7",
-	  "class": "unipiRelay-elay",
+	  "class": "UniPiRelay",
 	  "name": "UniPi Relay 7",
 	  "circuit": "7"
 	},
 	{
 	  "id": "unipiRelay-8",
-	  "class": "unipiRelay-elay",
+	  "class": "UniPiRelay",
 	  "name": "UniPi Relay 8",
 	  "circuit": "8"
 	},
