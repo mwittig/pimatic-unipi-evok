@@ -184,6 +184,7 @@ In particular, I would like to thank Tomáš Hora for his excellent support!
 ## License 
 
 Copyright (c) 2016, Marcus Wittig and contributors
+
 All rights reserved.
 
 [MIT](https://github.com/mwittig/pimatic-unipi-evok/blob/master/LICENSE)
