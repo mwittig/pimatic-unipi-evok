@@ -179,3 +179,10 @@ The following predicates are supported:
 
 I would like to thank [UniPi.technology](http://www.unipi.technology) for providing me with a board for development. 
 In particular, I would like to thank Tomáš Hora for his excellent support!
+
+## License 
+
+Copyright (c) 2016, Marcus Wittig and contributors
+All rights reserved.
+
+[MIT](https://github.com/mwittig/pimatic-unipi-evok/blob/master/LICENSE)
