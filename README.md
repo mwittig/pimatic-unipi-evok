@@ -2,6 +2,7 @@
 
 [![Dependency Status](https://david-dm.org/mwittig/pimatic-unipi-evok.svg)](https://david-dm.org/mwittig/pimatic-unipi-evok)
 [![npm version](https://badge.fury.io/js/pimatic-unipi-evok.svg)](http://badge.fury.io/js/pimatic-unipi-evok)
+[![Build Status](https://travis-ci.org/mwittig/pimatic-unipi-evok.svg?branch=master)](https://travis-ci.org/mwittig/pimatic-unipi-evok)
 
 
 Pimatic Plugin for the [UniPi board](http://www.unipi.technology) based
