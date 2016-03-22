@@ -59,11 +59,11 @@ module.exports = (env) ->
     # @param [Object] lastState state information stored in database
     constructor: (@config, plugin, lastState) ->
       @debug = plugin.config.debug ? plugin.config.__proto__.debug
-      env.logger.debug "[UniPiRelay] initializing:", util.inspect(config) if @debug
+      env.logger.debug "[UniPiRelay] initializing:", util.inspect(@config) if @debug
       @_lastError = ""
-      @id = config.id
-      @name = config.name
-      @circuit = config.circuit
+      @id = @config.id
+      @name = @config.name
+      @circuit = @config.circuit
       @evokDeviceUrl = uniPiHelper.createDeviceUrl plugin.config.url, "relay", @circuit
       @options = {
         timeout: 1000 * uniPiHelper.normalize plugin.config.timeout ? plugin.config.__proto__.timeout, 5, 86400
@@ -110,11 +110,11 @@ module.exports = (env) ->
     # @param [Object] lastState state information stored in database
     constructor: (@config, plugin, lastState) ->
       @debug = plugin.config.debug ? plugin.config.__proto__.debug
-      env.logger.debug "[UniPiAnalogOutput] initializing:", util.inspect(config) if @debug
+      env.logger.debug "[UniPiAnalogOutput] initializing:", util.inspect(@config) if @debug
       @_lastError = ""
-      @id = config.id
-      @name = config.name
-      @circuit = config.circuit
+      @id = @config.id
+      @name = @config.name
+      @circuit = @config.circuit
       @evokDeviceUrl = uniPiHelper.createDeviceUrl plugin.config.url, "ao", @circuit
       @options = {
         timeout: 1000 * uniPiHelper.normalize plugin.config.timeout ? plugin.config.__proto__.timeout, 5, 86400
@@ -186,11 +186,11 @@ module.exports = (env) ->
     # @param [Object] lastState state information stored in database
     constructor: (@config, plugin, lastState) ->
       @debug = plugin.config.debug ? plugin.config.__proto__.debug
-      env.logger.debug '[UniPiAnalogInput] initializing:', util.inspect(config) if @debug
+      env.logger.debug '[UniPiAnalogInput] initializing:', util.inspect(@config) if @debug
       @_inputVoltage = lastState?.inputVoltage?.value or 0.0
-      @id = config.id
-      @name = config.name
-      @circuit = config.circuit
+      @id = @config.id
+      @name = @config.name
+      @circuit = @config.circuit
       @_lastError = ""
 
       super()
@@ -218,11 +218,11 @@ module.exports = (env) ->
     # @param [Object] lastState state information stored in database
     constructor: (@config, plugin, lastState) ->
       @debug = plugin.config.debug ? plugin.config.__proto__.debug
-      env.logger.debug '[UniPiDigitalInput] initializing:', util.inspect(config) if @debug
+      env.logger.debug '[UniPiDigitalInput] initializing:', util.inspect(@config) if @debug
       @_contact = lastState?.contact?.value or 0.0
-      @id = config.id
-      @name = config.name
-      @circuit = config.circuit
+      @id = @config.id
+      @name = @config.name
+      @circuit = @config.circuit
       @_lastError = ""
 
       super()
@@ -251,11 +251,11 @@ module.exports = (env) ->
     # @param [Object] lastState state information stored in database
     constructor: (@config, plugin, lastState) ->
       @debug = plugin.config.debug ? plugin.config.__proto__.debug
-      env.logger.debug '[UniPiTemperature] initializing:', util.inspect(config) if @debug
+      env.logger.debug '[UniPiTemperature] initializing:', util.inspect(@config) if @debug
       @_temperature = lastState?.temperature?.value or 0.0
-      @id = config.id
-      @name = config.name
-      @circuit = config.circuit
+      @id = @config.id
+      @name = @config.name
+      @circuit = @config.circuit
       @_lastError = ""
 
       super()
