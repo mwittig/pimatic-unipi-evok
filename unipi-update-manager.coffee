@@ -125,25 +125,32 @@ module.exports = (env) ->
       @getStatusForDevice restDeviceType, circuit
 
     getStatusForAllDevices: () =>
+      @queryAllDevices().then( (json) =>
+        for obj in json
+          @emit obj.dev + obj.circuit, obj
+      ).catch((error) =>
+        @_base.error error
+      )
+
+    queryAllDevices: () =>
       urlObject = url.parse @baseURL, false, true
       urlObject.pathname = "rest/all"
-      @_base.debug "requesting status for all devices:", url.format(urlObject)
-      rest.get(url.format(urlObject), @options).then((result) =>
-        @_base.debug "response (status for all devices):", result.data
-        uniPiHelper.parseGetResponse(result).then((json) =>
-          if _.isArray(json)
-            @_lastError = ''
-            for obj in json
-              @emit obj.dev + obj.circuit, obj
-          else
-            @_base.error 'unable to get device status, invalid data: ', result.data
-        ).catch((error) =>
-          @_base.error 'unable to get device status, exception caught: ', error.toString()
+      new Promise (resolve, reject) =>
+        @_base.debug "requesting status for all devices:", url.format(urlObject)
+        rest.get(url.format(urlObject), @options).then((result) =>
+          @_base.debug "response (status for all devices):", result.data
+          uniPiHelper.parseGetResponse(result).then((json) =>
+            if _.isArray(json)
+              resolve json
+            else
+              @_base.rejectWithErrorString reject, 'unable to get device status, invalid data: ' + result.data
+          ).catch((error) =>
+            @_base.rejectWithErrorString reject, 'unable to get device status, exception caught: ' + error.toString()
+          )
+        ).catch((errorResult)  =>
+          @_base.rejectWithErrorString reject, 'unable to get device status, exception caught: ' +
+              errorResult.error.toString()
         )
-      ).catch((errorResult)  =>
-        @_base.error 'unable to get device status, exception caught: ',
-          errorResult.error.toString()
-      )
 
     getStatusForDevice: (deviceType, circuit) =>
       urlObject = url.parse @baseURL, false, true
