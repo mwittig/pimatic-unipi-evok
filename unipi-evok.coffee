@@ -1,281 +1,86 @@
 # UniPi-Evok plugin
 module.exports = (env) ->
 
-  Promise = env.require 'bluebird'
   _ = env.require 'lodash'
-  net = require 'net'
-  events = require 'events'
-  util = require 'util'
-  rest = require('restler-promise')(Promise)
-  uniPiHelper = require('./unipi-helper')(env)
   UniPiUpdateManager = require('./unipi-update-manager')(env)
-
+  commons = require('pimatic-plugin-commons')(env)
+  deviceConfigTemplates = {
+    "relay": {
+      id: "unipi-relay-"
+      name: "UniPi Relay "
+      class: "UniPiRelay"
+    }
+    "ai": {
+      "id": "unipi-analog-input-"
+      "class": "UniPiAnalogInput"
+      "name": "UniPi Analog Input "
+    }
+    "ao": {
+      "id": "unipi-analog-output-"
+      "class": "UniPiAnalogOutput"
+      "name": "UniPi Analog Output "
+    }
+    "input": {
+      "id": "unipi-digital-input-"
+      "class": "UniPiDigitalInput"
+      "name": "UniPi Digital Input "
+    }
+    "temp": {
+      "id": "unipi-temperature-"
+      "class": "UniPiTemperature"
+      "name": "UniPi Temperature "
+    }
+  }
 
   # ###UniPiEvokPlugin class
   class UniPiEvokPlugin extends env.plugins.Plugin
 
     init: (app, @framework, @config) =>
       @updater = new UniPiUpdateManager(@config, @)
+      @debug = @config.debug || false
+      @_base = commons.base @, 'Plugin'
 
       # register devices
       deviceConfigDef = require("./device-config-schema")
+      for key, device of deviceConfigTemplates
+        className = device.class
+        # convert camel-case classname to kebap-case filename
+        filename = className.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+        classType = require('./devices/' + filename)(env)
+        @_base.debug "Registering device class #{className}"
+        @framework.deviceManager.registerDeviceClass(className, {
+          configDef: deviceConfigDef[className],
+          createCallback: @_callbackHandler(className, classType)
+        })
 
-      @framework.deviceManager.registerDeviceClass("UniPiRelay", {
-        configDef: deviceConfigDef.UniPiRelay,
-        createCallback: (config, plugin, lastState) =>
-          return new UniPiRelay(config, @, lastState)
-      })
+      # auto-discovery
+      @framework.deviceManager.on('discover', (eventData) =>
+        @framework.deviceManager.discoverMessage 'pimatic-unipi-evok', 'Searching for devices'
 
-      @framework.deviceManager.registerDeviceClass("UniPiAnalogOutput", {
-        configDef: deviceConfigDef.UniPiAnalogOutput,
-        createCallback: (config, plugin, lastState) =>
-          return new UniPiAnalogOutput(config, @, lastState)
-      })
+        @updater.queryAllDevices().then((result) =>
+          for obj in result
+            if deviceConfigTemplates[obj.dev]?
+              device = _.assign({}, deviceConfigTemplates[obj.dev])
+              device.id += obj.circuit
+              device.name += obj.circuit
+              device.circuit = obj.circuit
+              matched = @framework.deviceManager.devicesConfig.some (element, iterator) =>
+                element.class is device.class and element.circuit is device.circuit
 
-      @framework.deviceManager.registerDeviceClass("UniPiAnalogInput", {
-        configDef: deviceConfigDef.UniPiAnalogInput,
-        createCallback: (config, plugin, lastState) =>
-          return new UniPiAnalogInput(config, @, lastState)
-      })
-
-      @framework.deviceManager.registerDeviceClass("UniPiDigitalInput", {
-        configDef: deviceConfigDef.UniPiDigitalInput,
-        createCallback: (config, plugin, lastState) =>
-          return new UniPiDigitalInput(config, @, lastState)
-      })
-
-      @framework.deviceManager.registerDeviceClass("UniPiTemperature", {
-        configDef: deviceConfigDef.UniPiTemperature,
-        createCallback: (config, plugin, lastState) =>
-          return new UniPiTemperature(config, @, lastState)
-      })
-
-  # Device class representing an UniPi relay switch
-  class UniPiRelay extends env.devices.PowerSwitch
-
-    # Create a new UniPiRelay device
-    # @param [Object] config    device configuration
-    # @param [UniPiEvokPlugin] plugin   plugin instance
-    # @param [Object] lastState state information stored in database
-    constructor: (@config, plugin, lastState) ->
-      @debug = plugin.config.debug ? plugin.config.__proto__.debug
-      env.logger.debug "[UniPiRelay] initializing:", util.inspect(@config) if @debug
-      @_lastError = ""
-      @id = @config.id
-      @name = @config.name
-      @circuit = @config.circuit
-      @evokDeviceUrl = uniPiHelper.createDeviceUrl plugin.config.url, "relay", @circuit
-      @options = {
-        timeout: 1000 * uniPiHelper.normalize plugin.config.timeout ? plugin.config.__proto__.timeout, 5, 86400
-      }
-      super()
-      plugin.updater.registerDevice 'relay', @circuit, @_getUpdateCallback()
-
-    _debug: () ->
-      env.logger.debug arguments... if @debug
-
-    _getUpdateCallback: () ->
-      return (data) =>
-        @_debug '[UniPiRelay] status update:', util.inspect(data)
-        @_setState if data.value is 1 then true else false
-
-    getState: () ->
-      return Promise.resolve @_state
-
-    changeStateTo: (newState) ->
-      @_debug '[UniPiRelay] state change requested to:', newState
-      return new Promise( (resolve, reject) =>
-        rest.post(@evokDeviceUrl, _.assign({data: {value: if newState then 1 else 0}}, @options)).then((result) =>
-          uniPiHelper.parsePostResponse(result).then((data) =>
-            @_setState newState
-            @_debug '[UniPiRelay] state changed to:', newState
-            resolve()
-          ).catch((uniPiError) =>
-            env.logger.error '[UniPiRelay] unable to change switch state of device', @id + ': ', uniPiError.toString()
-            reject uniPiError.toString()
-          )
-        ).catch((result) ->
-          env.logger.error '[UniPiRelay] unable to change switch state of device', @id + ': ', result.error.toString()
-          reject result.error.toString()
+              if not matched
+                process.nextTick @_discoveryCallbackHandler('pimatic-unipi-evok', device.name, device)
         )
       )
 
+    _discoveryCallbackHandler: (pluginName, deviceName, deviceConfig) ->
+      return () =>
+        @framework.deviceManager.discoveredDevice pluginName, deviceName, deviceConfig
 
-  # Device class representing an UniPi analog output
-  class UniPiAnalogOutput extends env.devices.DimmerActuator
-
-    # Create a new UniPiAnalogOutput device
-    # @param [Object] config    device configuration
-    # @param [UniPiEvokPlugin] plugin   plugin instance
-    # @param [Object] lastState state information stored in database
-    constructor: (@config, plugin, lastState) ->
-      @debug = plugin.config.debug ? plugin.config.__proto__.debug
-      env.logger.debug "[UniPiAnalogOutput] initializing:", util.inspect(@config) if @debug
-      @_lastError = ""
-      @id = @config.id
-      @name = @config.name
-      @circuit = @config.circuit
-      @evokDeviceUrl = uniPiHelper.createDeviceUrl plugin.config.url, "ao", @circuit
-      @options = {
-        timeout: 1000 * uniPiHelper.normalize plugin.config.timeout ? plugin.config.__proto__.timeout, 5, 86400
-      }
-      @_dimlevel = lastState?.dimlevel?.value or 0
-      @_state = lastState?.state?.value or off
-      @_outputVoltage = lastState?.outputVoltage?.value or @_dimlevel / 10
-
-      @attributes = _.cloneDeep(@attributes)
-      @attributes.outputVoltage = {
-        description: "Output Voltage"
-        type: "number"
-        unit: 'V'
-        acronym: 'U'
-      }
-      super()
-      plugin.updater.registerDevice 'ao', @circuit, @_getUpdateCallback()
-
-    _debug: () ->
-      env.logger.debug arguments... if @debug
-
-    _getUpdateCallback: () ->
-      return (data) =>
-        @_debug '[UniPiAnalogOutput] status update:', util.inspect(data)
-        #@_setState if data.value is 1 then true else false
-        @_setDimlevel data.value * 10
-        #@_setAttribute 'outputVoltage', data.value
-
-    _setAttribute: (attributeName, value) ->
-      if @['_' + attributeName] isnt value
-        @['_' + attributeName] = value
-        @emit attributeName, value
-
-    changeDimlevelTo: (newLevelPerCent) ->
-      @_debug '[UniPiAnalogOutput] state change requested to (per cent):', newLevelPerCent
-      return new Promise( (resolve, reject) =>
-        rest.post(@evokDeviceUrl, _.assign({data: {value: newLevelPerCent / 10}}, @options)).then((result) =>
-          uniPiHelper.parsePostResponse(result).then((data) =>
-            @_setDimlevel newLevelPerCent
-            @_setAttribute 'outputVoltage', newLevelPerCent / 10
-            resolve()
-          ).catch((uniPiError) =>
-            env.logger.error '[UniPiAnalogOutput] unable to change switch state of device', @id + ': ', uniPiError.toString()
-            reject uniPiError.toString()
-          )
-        ).catch((result) ->
-          env.logger.error '[UniPiAnalogOutput] unable to change output level of device', @id + ': ', result.error.toString()
-          reject result.error.toString()
-        )
-      )
-
-    getOutputVoltage: () ->
-      return Promise.resolve(@_outputVoltage)
-
-
-  # Device class representing an UniPi analog input
-  class UniPiAnalogInput extends env.devices.Device
-
-    attributes:
-      inputVoltage:
-        description: "Input Voltage"
-        type: "number"
-        unit: 'V'
-        acronym: 'U'
-    
-    # Create a new UniPiAnalogInput device
-    # @param [Object] config    device configuration
-    # @param [UniPiEvokPlugin] plugin   plugin instance
-    # @param [Object] lastState state information stored in database
-    constructor: (@config, plugin, lastState) ->
-      @debug = plugin.config.debug ? plugin.config.__proto__.debug
-      env.logger.debug '[UniPiAnalogInput] initializing:', util.inspect(@config) if @debug
-      @_inputVoltage = lastState?.inputVoltage?.value or 0.0
-      @id = @config.id
-      @name = @config.name
-      @circuit = @config.circuit
-      @_lastError = ""
-
-      super()
-      plugin.updater.registerDevice 'ai', @circuit, @_getUpdateCallback()
-
-    _setAttribute: (attributeName, value) ->
-      if @['_' + attributeName] isnt value
-        @['_' + attributeName] = value
-        @emit attributeName, value
-
-    _getUpdateCallback: () ->
-      return (data) =>
-        env.logger.debug '[UniPiAnalogInput] status update:', util.inspect(data) if @debug
-        @_setAttribute "inputVoltage", data.value
-
-    getInputVoltage: () ->
-      return Promise.resolve(@_inputVoltage)
-
-
-  # Device class representing an UniPi digital output
-  class UniPiDigitalInput extends env.devices.ContactSensor
-    # Create a new UniPiDigitalInput device
-    # @param [Object] config    device configuration
-    # @param [UniPiEvokPlugin] plugin   plugin instance
-    # @param [Object] lastState state information stored in database
-    constructor: (@config, plugin, lastState) ->
-      @debug = plugin.config.debug ? plugin.config.__proto__.debug
-      env.logger.debug '[UniPiDigitalInput] initializing:', util.inspect(@config) if @debug
-      @_contact = lastState?.contact?.value or 0.0
-      @id = @config.id
-      @name = @config.name
-      @circuit = @config.circuit
-      @_lastError = ""
-
-      super()
-      plugin.updater.registerDevice 'input', @circuit, @_getUpdateCallback()
-
-    _setAttribute: (attributeName, value) ->
-      if @['_' + attributeName] isnt value
-        @['_' + attributeName] = value
-        @emit attributeName, value
-
-    _getUpdateCallback: () ->
-      return (data) =>
-        env.logger.debug '[UniPiDigitalInput] status update:', util.inspect(data) if @debug
-        @_setAttribute "contact", if data.value is 1 then true else false
-
-    getContact: () ->
-      return Promise.resolve(@_contact)
-
-
-  # Device class representing an UniPi temperature sensor
-  class UniPiTemperature extends env.devices.TemperatureSensor
-
-    # Create a new UniPiTemperature device
-    # @param [Object] config    device configuration
-    # @param [UniPiEvokPlugin] plugin   plugin instance
-    # @param [Object] lastState state information stored in database
-    constructor: (@config, plugin, lastState) ->
-      @debug = plugin.config.debug ? plugin.config.__proto__.debug
-      env.logger.debug '[UniPiTemperature] initializing:', util.inspect(@config) if @debug
-      @_temperature = lastState?.temperature?.value or 0.0
-      @id = @config.id
-      @name = @config.name
-      @circuit = @config.circuit
-      @_lastError = ""
-
-      super()
-      plugin.updater.registerDevice 'temp', @circuit, @_getUpdateCallback()
-
-    _setAttribute: (attributeName, value) ->
-      if @['_' + attributeName] isnt value
-        @['_' + attributeName] = value
-        @emit attributeName, value
-      
-    _getUpdateCallback: () ->                                          
-      return (data) =>
-        env.logger.debug '[UniPiTemperature] status update:', util.inspect(data) if @debug
-        @_setAttribute "temperature", data.value
-
-    getTemperature: () ->
-      return Promise.resolve(@_temperature)
+    _callbackHandler: (className, classType) ->
+      # this closure is required to keep the className and classType context as part of the iteration
+      return (config, lastState) =>
+        return new classType(config, @, lastState)
 
   # ###Finally
-  # Create a instance of my plugin
-  myPlugin = new UniPiEvokPlugin
-  # and return it to the framework.
-  return myPlugin
+  # Create a instance of plugin
+  return new UniPiEvokPlugin

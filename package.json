@@ -6,6 +6,8 @@
   "main": "unipi-evok.coffee",
   "configSchema": "unipi-evok-config-schema.coffee",
   "files": [
+    "assets",
+    "devices",
     "unipi-evok.coffee",
     "unipi-helper.coffee",
     "unipi-update-manager.coffee",
@@ -28,10 +30,13 @@
   },
   "license": "MIT",
   "dependencies": {
+    "pimatic-plugin-commons": "^0.8.8",
     "restler-promise": "git+https://github.com/mwittig/restler-promise.git",
     "ws": "^1.0.1"
   },
-  "peerDependencies": {},
+  "peerDependencies": {
+    "pimatic": ">=0.8.0 <1.0.0"
+  },
   "engines": {
     "node": ">0.8.x",
     "npm": ">1.1.x"
