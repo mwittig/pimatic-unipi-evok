@@ -29,9 +29,14 @@ module.exports = (env) ->
       @id = @config.id
       @name = @config.name
       @circuit = @config.circuit
+      @_updateCallback = @_getUpdateCallback()
 
       super()
-      plugin.updater.registerDevice 'ai', @circuit, @_getUpdateCallback()
+      plugin.updater.registerDevice 'ai', @circuit, @_updateCallback
+
+    destroy: () ->
+      plugin.updater.unregisterDevice 'ai', @circuit, @_updateCallback
+      super()
 
     _getUpdateCallback: () ->
       return (data) =>

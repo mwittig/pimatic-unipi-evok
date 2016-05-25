@@ -28,6 +28,7 @@ module.exports = (env) ->
       @_dimlevel = lastState?.dimlevel?.value or 0
       @_state = lastState?.state?.value or off
       @_outputVoltage = lastState?.outputVoltage?.value or @_dimlevel / 10
+      @_updateCallback = @_getUpdateCallback()
 
       @attributes = _.cloneDeep(@attributes)
       @attributes.outputVoltage = {
@@ -37,7 +38,11 @@ module.exports = (env) ->
         acronym: 'U'
       }
       super()
-      plugin.updater.registerDevice 'ao', @circuit, @_getUpdateCallback()
+      plugin.updater.registerDevice 'ao', @circuit, @_updateCallback
+
+    destroy: () ->
+      plugin.updater.unregisterDevice 'ao', @circuit, @_updateCallback
+      super()
 
     _getUpdateCallback: () ->
       return (data) =>

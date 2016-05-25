@@ -26,8 +26,14 @@ module.exports = (env) ->
       @options = {
         timeout: 1000 * uniPiHelper.normalize plugin.config.timeout ? plugin.config.__proto__.timeout, 5, 86400
       }
+      @_updateCallback = @_getUpdateCallback()
+
       super()
-      plugin.updater.registerDevice 'relay', @circuit, @_getUpdateCallback()
+      plugin.updater.registerDevice 'relay', @circuit, @_updateCallback
+
+    destroy: () ->
+      plugin.updater.unregisterDevice 'relay', @circuit, @_updateCallback
+      super()
 
     _getUpdateCallback: () ->
       return (data) =>
@@ -40,17 +46,22 @@ module.exports = (env) ->
     changeStateTo: (newState) ->
       @_base.debug 'state change requested to:', newState
       return new Promise( (resolve, reject) =>
-        rest.post(@evokDeviceUrl, _.assign({data: {value: if newState then 1 else 0}}, @options)).then((result) =>
+        rest.post(
+          @evokDeviceUrl,
+          _.assign({data: {value: if newState then 1 else 0}}, @options)
+        ).then((result) =>
           uniPiHelper.parsePostResponse(result).then((data) =>
             @_setState newState
             @_base.debug 'state changed to:', newState
             resolve()
           ).catch((uniPiError) =>
-            @_base.error 'unable to change switch state of device', @id + ': ', uniPiError.toString()
-            reject uniPiError.toString()
+            errorText = uniPiError.toString().replace(/^Error:\ /, "")
+           @_base.rejectWithErrorString reject,
+              "Unable to change switch state: #{errorText}"
           )
-        ).catch((result) ->
-          @_base.error 'unable to change switch state of device', @id + ': ', result.error.toString()
-          reject result.error.toString()
-        )
+        ).catch((result) =>
+          errorText = result.error.toString().replace(/^Error:\ /, "")
+          @_base.rejectWithErrorString reject,
+            "Unable to change switch state: #{errorText}"
       )
+    )

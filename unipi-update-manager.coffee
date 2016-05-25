@@ -31,6 +31,9 @@ module.exports = (env) ->
       @_connectWebSocket()
       super()
 
+    destroy: () ->
+      @_disconnectWebSocket()
+
     _getWebSocketMessageHandler: () ->
       return (message) =>
         @_base.debug "received update:", message
@@ -123,6 +126,9 @@ module.exports = (env) ->
       unless restDeviceType in ['relay', 'di', 'input', 'ai', 'analoginput', 'ao', 'analogoutput', 'sensor']
         restDeviceType = 'sensor'
       @getStatusForDevice restDeviceType, circuit
+
+    unregisterDevice: (deviceType, circuit, callback) =>
+      @removeListener deviceType + circuit, callback
 
     getStatusForAllDevices: () =>
       @queryAllDevices().then( (json) =>
