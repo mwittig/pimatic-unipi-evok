@@ -15,7 +15,8 @@ module.exports = (env) ->
     # @param [UniPiEvokPlugin] plugin   plugin instance
     # @param [Object] lastState state information stored in database
     constructor: (@config, plugin, lastState) ->
-      @debug = plugin.config.debug ? plugin.config.__proto__.debug
+      defaultConfig = plugin.config.__proto__
+      @debug = plugin.config.debug ? defaultConfig.debug
       @_base = commons.base @, @config.class
       @_base.debug "[UniPiAnalogOutput] initializing:", util.inspect(@config) if @debug
       @id = @config.id
@@ -23,7 +24,7 @@ module.exports = (env) ->
       @circuit = @config.circuit
       @evokDeviceUrl = uniPiHelper.createDeviceUrl plugin.config.url, "ao", @circuit
       @options = {
-        timeout: 1000 * uniPiHelper.normalize plugin.config.timeout ? plugin.config.__proto__.timeout, 5, 86400
+        timeout: 1000 * @_base.normalize plugin.config.timeout ? defaultConfig.timeout, 5, 86400
       }
       @_dimlevel = lastState?.dimlevel?.value or 0
       @_state = lastState?.state?.value or off
@@ -49,23 +50,28 @@ module.exports = (env) ->
         @_base.debug 'status update:', util.inspect(data)
         #@_setState if data.value is 1 then true else false
         @_setDimlevel data.value * 10
-        #@_base.setAttribute 'outputVoltage', data.value
+        @_base.setAttribute 'outputVoltage', data.value
 
     changeDimlevelTo: (newLevelPerCent) ->
-      @_base.debug 'state change requested to (per cent):', newLevelPerCent
+      @_base.debug 'output level change requested to (per cent):', newLevelPerCent
       return new Promise( (resolve, reject) =>
-        rest.post(@evokDeviceUrl, _.assign({data: {value: newLevelPerCent / 10}}, @options)).then((result) =>
+        rest.post(
+          @evokDeviceUrl,
+          _.assign({data: {value: newLevelPerCent / 10}}, @options)
+        ).then((result) =>
           uniPiHelper.parsePostResponse(result).then((data) =>
             @_setDimlevel newLevelPerCent
             @_base.setAttribute 'outputVoltage', newLevelPerCent / 10
             resolve()
           ).catch((uniPiError) =>
-            @_base.error 'unable to change switch state of device', @id + ': ', uniPiError.toString()
-            reject uniPiError.toString()
+            errorText = uniPiError.toString().replace(/^Error: /, "")
+            @_base.rejectWithErrorString reject,
+              "Unable to change output level: #{errorText}"
           )
-        ).catch((result) ->
-          @_base.error 'unable to change output level of device', @id + ': ', result.error.toString()
-          reject result.error.toString()
+        ).catch((result) =>
+          errorText = result.error.toString().replace(/^Error: /, "")
+          @_base.rejectWithErrorString reject,
+            "Unable to change output level: #{errorText}"
         )
       )
 

@@ -15,7 +15,8 @@ module.exports = (env) ->
     # @param [UniPiEvokPlugin] plugin   plugin instance
     # @param [Object] lastState state information stored in database
     constructor: (@config, plugin, lastState) ->
-      @debug = plugin.config.debug ? plugin.config.__proto__.debug
+      defaultConfig = plugin.config.__proto__
+      @debug = plugin.config.debug ? defaultConfig.debug
       @_base = commons.base @, @config.class
       console.log "@debug", @debug
       @_base.debug "initializing:", util.inspect(@config) if @debug
@@ -24,7 +25,7 @@ module.exports = (env) ->
       @circuit = @config.circuit
       @evokDeviceUrl = uniPiHelper.createDeviceUrl plugin.config.url, "relay", @circuit
       @options = {
-        timeout: 1000 * uniPiHelper.normalize plugin.config.timeout ? plugin.config.__proto__.timeout, 5, 86400
+        timeout: 1000 * @_base.normalize plugin.config.timeout ? defaultConfig.timeout, 5, 86400
       }
       @_updateCallback = @_getUpdateCallback()
 
@@ -55,12 +56,12 @@ module.exports = (env) ->
             @_base.debug 'state changed to:', newState
             resolve()
           ).catch((uniPiError) =>
-            errorText = uniPiError.toString().replace(/^Error:\ /, "")
-           @_base.rejectWithErrorString reject,
+            errorText = uniPiError.toString().replace(/^Error: /, "")
+            @_base.rejectWithErrorString reject,
               "Unable to change switch state: #{errorText}"
           )
         ).catch((result) =>
-          errorText = result.error.toString().replace(/^Error:\ /, "")
+          errorText = result.error.toString().replace(/^Error: /, "")
           @_base.rejectWithErrorString reject,
             "Unable to change switch state: #{errorText}"
       )
