@@ -43,15 +43,17 @@ module.exports = (env) ->
       # register devices
       deviceConfigDef = require("./device-config-schema")
       for key, device of deviceConfigTemplates
-        className = device.class
-        # convert camel-case classname to kebap-case filename
-        filename = className.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-        classType = require('./devices/' + filename)(env)
-        @_base.debug "Registering device class #{className}"
-        @framework.deviceManager.registerDeviceClass(className, {
-          configDef: deviceConfigDef[className],
-          createCallback: @_callbackHandler(className, classType)
-        })
+        do (key, device) =>
+          className = device.class
+          # convert camel-case classname to kebap-case filename
+          filename = className.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
+          classType = require('./devices/' + filename)(env)
+          @_base.debug "Registering device class #{className}"
+          @framework.deviceManager.registerDeviceClass(className, {
+            configDef: deviceConfigDef[className],
+            createCallback: (config, lastState) =>
+              return new classType(config, @, lastState)
+          })
 
       # auto-discovery
       @framework.deviceManager.on('discover', (eventData) =>
@@ -64,11 +66,13 @@ module.exports = (env) ->
               device.id += obj.circuit
               device.name += obj.circuit
               device.circuit = obj.circuit
-              matched = @framework.deviceManager.devicesConfig.some (element, iterator) =>
+              matched = @framework.deviceManager.devicesConfig.some (element, iterator) ->
                 element.class is device.class and element.circuit is device.circuit
 
               if not matched
-                process.nextTick @_discoveryCallbackHandler('pimatic-unipi-evok', device.name, device)
+                process.nextTick(
+                  @_discoveryCallbackHandler('pimatic-unipi-evok', device.name, device)
+                )
         )
       )
 
@@ -76,10 +80,6 @@ module.exports = (env) ->
       return () =>
         @framework.deviceManager.discoveredDevice pluginName, deviceName, deviceConfig
 
-    _callbackHandler: (className, classType) ->
-      # this closure is required to keep the className and classType context as part of the iteration
-      return (config, lastState) =>
-        return new classType(config, @, lastState)
 
   # ###Finally
   # Create a instance of plugin
