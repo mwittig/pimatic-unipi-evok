@@ -30,7 +30,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "pimatic-plugin-commons": "^0.8.8",
+    "pimatic-plugin-commons": "^0.9.0",
     "restler-promise": "git+https://github.com/mwittig/restler-promise.git",
     "ws": "^1.1.0"
   },
