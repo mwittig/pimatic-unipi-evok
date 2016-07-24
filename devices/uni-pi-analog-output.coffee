@@ -22,6 +22,7 @@ module.exports = (env) ->
       @id = @config.id
       @name = @config.name
       @circuit = @config.circuit
+      @updater = plugin.updater
       @evokDeviceUrl = uniPiHelper.createDeviceUrl plugin.config.url, "ao", @circuit
       @options = {
         timeout: 1000 * @_base.normalize plugin.config.timeout ? defaultConfig.timeout, 5, 86400
@@ -39,10 +40,10 @@ module.exports = (env) ->
         acronym: 'U'
       }
       super()
-      plugin.updater.registerDevice 'ao', @circuit, @_updateCallback
+      @updater.registerDevice 'ao', @circuit, @_updateCallback
 
     destroy: () ->
-      plugin.updater.unregisterDevice 'ao', @circuit, @_updateCallback
+      @updater.unregisterDevice 'ao', @circuit, @_updateCallback
       super()
 
     _getUpdateCallback: () ->

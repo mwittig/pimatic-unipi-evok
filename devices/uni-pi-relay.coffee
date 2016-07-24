@@ -18,11 +18,11 @@ module.exports = (env) ->
       defaultConfig = plugin.config.__proto__
       @debug = plugin.config.debug ? defaultConfig.debug
       @_base = commons.base @, @config.class
-      console.log "@debug", @debug
       @_base.debug "initializing:", util.inspect(@config) if @debug
       @id = @config.id
       @name = @config.name
       @circuit = @config.circuit
+      @updater = plugin.updater
       @evokDeviceUrl = uniPiHelper.createDeviceUrl plugin.config.url, "relay", @circuit
       @options = {
         timeout: 1000 * @_base.normalize plugin.config.timeout ? defaultConfig.timeout, 5, 86400
@@ -30,10 +30,10 @@ module.exports = (env) ->
       @_updateCallback = @_getUpdateCallback()
 
       super()
-      plugin.updater.registerDevice 'relay', @circuit, @_updateCallback
+      @updater.registerDevice 'relay', @circuit, @_updateCallback
 
     destroy: () ->
-      plugin.updater.unregisterDevice 'relay', @circuit, @_updateCallback
+      @updater.unregisterDevice 'relay', @circuit, @_updateCallback
       super()
 
     _getUpdateCallback: () ->
