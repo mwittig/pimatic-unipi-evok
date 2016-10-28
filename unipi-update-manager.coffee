@@ -1,4 +1,3 @@
-# Class UniPiUpdateManager
 module.exports = (env) ->
 
   Promise = env.require 'bluebird'
@@ -11,6 +10,7 @@ module.exports = (env) ->
   uniPiHelper = require('./unipi-helper')(env)
   commons = require('pimatic-plugin-commons')(env)
 
+  # Class UniPiUpdateManager
   class UniPiUpdateManager extends events.EventEmitter
 
     constructor: (@config, plugin) ->
