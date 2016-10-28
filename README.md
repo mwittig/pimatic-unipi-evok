@@ -4,9 +4,15 @@
 [![npm version](https://badge.fury.io/js/pimatic-unipi-evok.svg)](http://badge.fury.io/js/pimatic-unipi-evok)
 [![Build Status](https://travis-ci.org/mwittig/pimatic-unipi-evok.svg?branch=master)](https://travis-ci.org/mwittig/pimatic-unipi-evok)
 
-
 Pimatic Plugin for the [UniPi board](http://www.unipi.technology) based
 on the [Evok UniPi API](https://github.com/UniPiTechnology/evok).
+
+## Contributions
+
+If you like this plugin, please consider &#x2605; starring 
+[the project on github](https://github.com/mwittig/pimatic-unipi-evok). Contributions 
+to the project are welcome. You can simply fork the project and create a pull 
+request with your contribution to start with. 
 
 ## Getting Started
 
@@ -34,8 +40,9 @@ The plugin has the following configuration properties:
 
 ## Device Configuration
 
-Devices must be added manually to the device section of your pimatic config. To
-simplify the configuration, 
+As of pimatic version 0.9, devices can be added easily using the discovery 
+function of the pimatic frontend. However, if you wish to add devices directly 
+to the config file instead, 
 [snippets](https://raw.githubusercontent.com/mwittig/pimatic-unipi-evok/master/config-snippets.txt) 
 are provided for all device types.
 
