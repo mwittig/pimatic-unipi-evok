@@ -1,4 +1,3 @@
-# Class UniPiUpdateManager
 module.exports = (env) ->
 
   Promise = env.require 'bluebird'
