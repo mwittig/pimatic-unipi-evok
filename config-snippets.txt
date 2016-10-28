@@ -1,3 +1,5 @@
+    # !!! Do NOT copy the comment lines to config.json            !!!
+    # !!! as this is not supported by pimatic                     !!!
 	#---8<------8<------8<------8<------8<------8<------8<------8<---
 	# UniPiRelay
 	#---8<------8<------8<------8<------8<------8<------8<------8<---
