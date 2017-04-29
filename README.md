@@ -1,5 +1,7 @@
 # pimatic-unipi
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/mwittig/pimatic-unipi-evok.svg)](https://greenkeeper.io/)
+
 [![Dependency Status](https://david-dm.org/mwittig/pimatic-unipi-evok.svg)](https://david-dm.org/mwittig/pimatic-unipi-evok)
 [![npm version](https://badge.fury.io/js/pimatic-unipi-evok.svg)](http://badge.fury.io/js/pimatic-unipi-evok)
 [![Build Status](https://travis-ci.org/mwittig/pimatic-unipi-evok.svg?branch=master)](https://travis-ci.org/mwittig/pimatic-unipi-evok)
