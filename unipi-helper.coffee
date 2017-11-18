@@ -36,7 +36,10 @@ module.exports = (env) ->
 
     parseGetResponse: (result) ->
       try
-        json = JSON.parse result.data
+        if (typeof result.data) isnt "object"
+          json = JSON.parse result.data
+        else
+          json = result.data
         return Promise.resolve json
       catch err
         return Promise.reject err
