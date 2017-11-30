@@ -38,8 +38,15 @@ module.exports = (env) ->
       return (message) =>
         @_base.debug "received update:", message
         try
-          json = JSON.parse message
-          @emit json.dev + json.circuit, json if json.dev? and json.circuit?
+          if (typeof message) isnt "object"
+            json = JSON.parse message
+          else
+            json = message
+          if Array.isArray(json)
+            for obj in json
+              @emit obj.dev + obj.circuit, obj if obj.dev? and obj.circuit?
+          else
+            @emit json.dev + json.circuit, json if json.dev? and json.circuit?
           @_lastError = ''
         catch error
           @_base.error "exception caught:", error.toString()
