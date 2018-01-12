@@ -1,6 +1,6 @@
 {
   "name": "pimatic-unipi-evok",
-  "description": "Pimatic Plugin for the UniPi board based on Evok - http://www.unipi.technology",
+  "description": "Pimatic Plugin for UniPi boards and Neuron PLCs using Evok 2.0 - http://www.unipi.technology",
   "version": "0.3.0",
   "author": "Marcus Wittig (https://github.com/mwittig/pimatic-unipi-evok)",
   "main": "unipi-evok.coffee",
@@ -45,7 +45,7 @@
   "devDependencies": {
     "coffee-script": "^1.11.1",
     "gulp": "^3.9.1",
-    "gulp-coffee": "^2.3.2",
+    "gulp-coffee": "^2.3.5",
     "gulp-coffeelint": "^0.6.0",
     "gulp-plumber": "^1.2.0"
   },
