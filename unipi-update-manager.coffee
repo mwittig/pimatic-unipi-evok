@@ -156,12 +156,15 @@ module.exports = (env) ->
             if _.isArray(json)
               resolve json
             else
-              @_base.rejectWithErrorString reject, 'unable to get device status, invalid data: ' + result.data
+              @_base.rejectWithErrorString reject,
+                'unable to get status for all devices, invalid data: ' + result.data
           ).catch((error) =>
-            @_base.rejectWithErrorString reject, 'unable to get device status, exception caught: ' + error.toString()
+            @_base.rejectWithErrorString reject,
+              'unable to get status for all devices, exception caught: ' + error.toString()
           )
         ).catch((errorResult)  =>
-          @_base.rejectWithErrorString reject, 'unable to get device status, exception caught: ' +
+          @_base.rejectWithErrorString reject,
+            'unable to get status for all devices, exception caught: ' +
               errorResult.error.toString()
         )
 
@@ -176,11 +179,13 @@ module.exports = (env) ->
             @_base.debug "status:", json.dev + json.circuit, json
             @emit json.dev + json.circuit, json
           else
-            @_base.error 'unable to get device status, invalid data: ', result.data
+            @_base.error "unable to get status for device circuit #{circuit}, invalid data: ",
+              result.data
         ).catch((error) =>
-          @_base.error 'unable to get device status, exception caught: ', error.toString()
+          @_base.error "unable to get status for device circuit #{circuit}, exception caught: ",
+            error.toString()
         )
       ).catch((errorResult) =>
-        @_base.error 'unable to get device status, exception caught: ',
+        @_base.error "unable to get status for device circuit #{circuit}, exception caught: ",
           errorResult.error.toString()
       )
