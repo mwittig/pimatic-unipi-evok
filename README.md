@@ -5,7 +5,9 @@
 [![Build Status](https://travis-ci.org/mwittig/pimatic-unipi-evok.svg?branch=master)](https://travis-ci.org/mwittig/pimatic-unipi-evok)
 
 Pimatic Plugin for the [UniPi board](http://www.unipi.technology) based
-on the [Evok UniPi API](https://github.com/UniPiTechnology/evok).
+on the [Evok UniPi API](https://github.com/UniPiTechnology/evok). The 
+plugin has been tested Evok 1.0 and 2.0 using a UniPi 1.1 board. It 
+should also work UniPi Lite and Neuron boards.
 
 ## Contributions
 
@@ -190,7 +192,7 @@ In particular, I would like to thank Tomáš Hora for his excellent support!
 
 ## License 
 
-Copyright (c) 2016, Marcus Wittig and contributors
+Copyright (c) 2018, Marcus Wittig and contributors
 
 All rights reserved.
 
