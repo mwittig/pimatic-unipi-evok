@@ -30,9 +30,9 @@
   },
   "license": "MIT",
   "dependencies": {
-    "pimatic-plugin-commons": "^0.9.3",
-    "restler-promise": "git+https://github.com/mwittig/restler-promise.git",
-    "ws": "^3.0.0"
+    "pimatic-plugin-commons": "^0.9.6",
+    "restler-promise": "0.0.7",
+    "ws": "^4.0.0"
   },
   "peerDependencies": {
     "pimatic": ">=0.8.0 <1.0.0"
@@ -47,7 +47,7 @@
     "gulp": "^3.9.1",
     "gulp-coffee": "^2.3.2",
     "gulp-coffeelint": "^0.6.0",
-    "gulp-plumber": "^1.1.0"
+    "gulp-plumber": "^1.2.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0"
