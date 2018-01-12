@@ -184,11 +184,24 @@ The Temperature Device exhibits the following attributes:
 The following predicates are supported:
 * temperature of {device} is equal to | is less than | is greater than {value},
   more comparison operators are supported
+  
+## Trouble Shooting
+
+* Error: unable to get status for device circuit ... Internal Server Error (500)
+
+  If you get this error occasionally, it most likely occurs because you have setup a pimatic device 
+  with a circuit id which no longer exist in your Evok configuration, e.g. a 1wire sensor which 
+  has been unplugged from the the board. 
 
 ## Acknowledgments
 
 I would like to thank [UniPi.technology](http://www.unipi.technology) for providing me with a board for development. 
 In particular, I would like to thank Tomáš Hora for his excellent support!
+
+# History
+
+See [Release History](https://github.com/mwittig/pimatic-unipi-evok/blob/master/HISTORY.md).
+
 
 ## License 
 
