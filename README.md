@@ -18,9 +18,10 @@ request with your contribution to start with.
 
 ## Getting Started
 
-To be able to use the plugin you need to install Evok on the Raspberry Pi
-mounted on the UniPi board. Pimatic can either be installed on the same board
-on another host on the local network.
+To be able to use the plugin you need to install 
+[Evok 2.0](https://github.com/UniPiTechnology/evok/blob/master/README.md#installation-process-for-the-20-evok-version) 
+on the Raspberry Pi mounted on the UniPi board. Pimatic can either be installed on the same Raspberry Pi
+or on another host on the local network. Note, Evok 1.0 is also known to work, but will no longer be supported.
 
 ## Plugin Configuration
 
