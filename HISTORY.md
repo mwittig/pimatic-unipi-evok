@@ -1,5 +1,8 @@
 # Release History
 
+* 20180320, V0.3.1
+    - Dependency updates
+    
 * 20180112, V0.3.0
     - Support for Evok API 2.0, issues #10 and #12. Thanks to @sedlon
     - Dependency updates
