@@ -6,8 +6,9 @@
 
 Pimatic Plugin for the [UniPi board](http://www.unipi.technology) based
 on the [Evok UniPi API](https://github.com/UniPiTechnology/evok). The 
-plugin has been tested Evok 1.0 and 2.0 using a UniPi 1.1 board. It 
-should also work UniPi Lite and Neuron boards.
+plugin has been tested  with Evok 2.0 using a UniPi 1.1 board. It 
+should also work UniPi Lite and Neuron boards. Note, Evok 1.0 is no longer 
+supported.
 
 ## Contributions
 
