@@ -30,9 +30,9 @@
   },
   "license": "MIT",
   "dependencies": {
-    "pimatic-plugin-commons": "^0.9.7",
+    "pimatic-plugin-commons": "^0.9.8",
     "restler-promise": "0.0.10",
-    "ws": "^5.1.0"
+    "ws": "^5.2.2"
   },
   "peerDependencies": {
     "pimatic": ">=0.8.0 <1.0.0"
