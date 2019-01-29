@@ -189,11 +189,15 @@ The following predicates are supported:
   
 ## Trouble Shooting
 
-* Error: unable to get status for device circuit ... Internal Server Error (500)
+* "Error: unable to get status for device circuit ... Internal Server Error (500)"
 
   If you get this error occasionally, it most likely occurs because you have setup a pimatic device 
   with a circuit id which no longer exist in your Evok configuration, e.g. a 1wire sensor which 
   has been unplugged from the the board. 
+ 
+* "TypeError: Buffer.alloc is not a function" during installation
+
+  Make sure, you have node version 4.5 or greater installed. 
 
 ## Acknowledgments
 
@@ -207,7 +211,7 @@ See [Release History](https://github.com/mwittig/pimatic-unipi-evok/blob/master/
 
 ## License 
 
-Copyright (c) 2018, Marcus Wittig and contributors
+Copyright (c) 2015 - 2019, Marcus Wittig and contributors
 
 All rights reserved.
 
