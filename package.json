@@ -34,6 +34,11 @@
     "restler-promise": "0.0.10",
     "ws": "^5.2.2"
   },
+  "bundledDependencies": [
+    "pimatic-plugin-commons",
+    "restler-promise",
+    "ws"
+  ],
   "peerDependencies": {
     "pimatic": ">=0.8.0 <1.0.0"
   },
