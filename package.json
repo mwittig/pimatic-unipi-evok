@@ -1,7 +1,7 @@
 {
   "name": "pimatic-unipi-evok",
   "description": "Pimatic Plugin for UniPi boards and Neuron PLCs using Evok 2.0 - http://www.unipi.technology",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "author": "Marcus Wittig (https://github.com/mwittig/pimatic-unipi-evok)",
   "main": "unipi-evok.coffee",
   "configSchema": "unipi-evok-config-schema.coffee",

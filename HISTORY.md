@@ -1,5 +1,9 @@
 # Release History
 
+* 20190129, V0.3.2
+    - Added bundledDependencies to simplify and speed-up installation on Raspberry
+    - Added hint on "Buffer.alloc is not a function" error to Trouble Shooting section
+    
 * 20180320, V0.3.1
     - Dependency updates
     
