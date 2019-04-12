@@ -5,6 +5,7 @@
     - Added hint on "Buffer.alloc is not a function" error to Trouble Shooting section
     
 * 20180320, V0.3.1
+    - Added note on discontinuation of Evok 1.0 support
     - Dependency updates
     
 * 20180112, V0.3.0
