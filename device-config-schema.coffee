@@ -10,6 +10,17 @@ module.exports = {
         description: "The Relay circuit address (a number string between 1 and 8)"
         type: "string"
   },
+  UniPiDigitalOutput: {
+    title: "UniPi Digital Output"
+    description: "UniPi Digital Output"
+    type: "object"
+    extensions: ["xConfirm", "xLink", "xOnLabel", "xOffLabel"]
+    properties:
+      circuit:
+        description: "The Digital Output circuit id"
+        type: "string"
+        default: "1"
+  },
   UniPiAnalogOutput: {
     title: "UniPi Analog Output"
     description: "UniPi Analog Output"

@@ -80,6 +80,36 @@ The following predicates and actions are supported:
 * toggle {device}
 
 
+### Digital Output Device (Neuron Boards)
+
+The Digital Output Device is based on the PowerSwitch device class. You need to provide
+the circuit id as shown by Evok.
+
+    {
+          "id": "unipiRelay-1",
+          "class": "UniPiRelay",
+          "name": "Relay 1",
+          "circuit": "1"
+    }
+
+The Digital Output Device has the following configuration properties:
+
+| Property  | Default  | Type    | Description                                 |
+|:----------|:---------|:--------|:--------------------------------------------|
+| circuit   | "1"      | String  | Circuit id as shown by Evok                 |
+
+The Digital Output Device exhibits the following attributes:
+
+| Property      | Unit  | Type    | Acronym | Description                            |
+|:--------------|:------|:--------|:--------|:---------------------------------------|
+| state         | -     | Boolean | -       | Switch State, true is on, false is off |
+
+The following predicates and actions are supported:
+* {device} is turned on|off
+* switch {device} on|off
+* toggle {device}
+
+
 ### Digital Input Device
 
 The Digital Input Device is based on the ContactSensor device class. You need
@@ -201,7 +231,7 @@ The following predicates are supported:
 
 ## Acknowledgments
 
-I would like to thank [UniPi.technology](http://www.unipi.technology) for providing me with a board for development. 
+I would like to thank [UniPi.technology](http://www.unipi.technology) for providing me with a UniPi 1.1 board for development. 
 In particular, I would like to thank Tomáš Hora for his excellent support!
 
 ## History
@@ -211,7 +241,7 @@ See [Release History](https://github.com/mwittig/pimatic-unipi-evok/blob/master/
 
 ## License 
 
-Copyright (c) 2015 - 2019, Marcus Wittig and contributors
+Copyright (c) 2015 - 2020, Marcus Wittig and contributors
 
 All rights reserved.
 

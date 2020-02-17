@@ -14,26 +14,27 @@ module.exports = (env) ->
     # @param [Object] config    device configuration
     # @param [UniPiEvokPlugin] plugin   plugin instance
     # @param [Object] lastState state information stored in database
-    constructor: (@config, plugin, lastState) ->
+    constructor: (@config, plugin, lastState, type="relay") ->
       defaultConfig = plugin.config.__proto__
       @debug = plugin.config.debug ? defaultConfig.debug
       @_base = commons.base @, @config.class
       @_base.debug "initializing:", util.inspect(@config) if @debug
       @id = @config.id
       @name = @config.name
+      @evokDeviceType = type
       @circuit = @config.circuit
       @updater = plugin.updater
-      @evokDeviceUrl = uniPiHelper.createDeviceUrl plugin.config.url, "relay", @circuit
+      @evokDeviceUrl = uniPiHelper.createDeviceUrl plugin.config.url, @evokDeviceType, @circuit
       @options = {
         timeout: 1000 * @_base.normalize plugin.config.timeout ? defaultConfig.timeout, 5, 86400
       }
       @_updateCallback = @_getUpdateCallback()
 
       super()
-      @updater.registerDevice 'relay', @circuit, @_updateCallback
+      @updater.registerDevice @evokDeviceType, @circuit, @_updateCallback
 
     destroy: () ->
-      @updater.unregisterDevice 'relay', @circuit, @_updateCallback
+      @updater.unregisterDevice @evokDeviceType, @circuit, @_updateCallback
       super()
 
     _getUpdateCallback: () ->

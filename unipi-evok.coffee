@@ -10,6 +10,11 @@ module.exports = (env) ->
       name: "UniPi Relay "
       class: "UniPiRelay"
     }
+    "do": {
+      "id": "unipi-digital-output-"
+      "class": "UniPiDigitalOutput"
+      "name": "UniPi Digital Output "
+    }
     "ai": {
       "id": "unipi-analog-input-"
       "class": "UniPiAnalogInput"
