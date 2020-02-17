@@ -1,8 +1,12 @@
 # Release History
 
+* 20200217, V0.3.3
+    - Added support for digital outputs provided with Neuron boards (needs testing) 
+    - Added automatic build and testing for node 10
+    
 * 20190129, V0.3.2
     - Added bundledDependencies to simplify and speed-up installation on Raspberry
-    - Added hint on "Buffer.alloc is not a function" error to Trouble Shooting section
+    - Added hint on "Buffer.alloc is not a function" error to Trouble Shooting section, issue #25
     
 * 20180320, V0.3.1
     - Added note on discontinuation of Evok 1.0 support
